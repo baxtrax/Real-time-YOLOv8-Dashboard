@@ -13,22 +13,39 @@ import { useModelSettingsContext } from "@/contexts/model-settings-context-provi
  * @returns The rendered ModelSettingsPanel component.
  */
 const ModelSettingsPanel = ({}) => {
-    const { updateModelSize, ModelSize, ModelSizeParams, ModelSizeFLOPs } =
-        useModelSettingsContext();
+    const {
+        updateClassFilter,
+        updateModelSize,
+        ModelSize,
+        ModelSizeParams,
+        ModelSizeFLOPs,
+        COCOClasses,
+    } = useModelSettingsContext();
 
     // FUNCTIONS
     const handleModelSizeSelect = (
         event: React.SyntheticEvent | null,
-        newValue: string | null
+        newValue: string | string[] | null
     ) => {
-        if (newValue !== null) {
+        // Type guard
+        if (newValue instanceof String) {
             updateModelSize(ModelSize[newValue as keyof typeof ModelSize]);
+        }
+    };
+
+    const handleClassFilterSelect = (
+        event: React.SyntheticEvent | null,
+        newValue: string | string[] | null
+    ) => {
+        // Type guard
+        if (newValue instanceof Array) {
+            updateClassFilter(newValue);
         }
     };
 
     // COMPONENTS
 
-    // Create the options for the model size selector based off enum
+    // Create the options for the model size selector based off enums
     const modelSizeOptions = (
         Object.keys(ModelSize) as Array<keyof typeof ModelSize>
     ).map((key) => ({
@@ -36,6 +53,15 @@ const ModelSettingsPanel = ({}) => {
         label: ModelSize[key],
         chipOneText: ModelSizeParams[key],
         chipTwoText: ModelSizeFLOPs[key],
+    }));
+
+    // Create the options for the class filter selector based off enums
+    const classOptions = (
+        Object.keys(COCOClasses) as Array<keyof typeof COCOClasses>
+    ).map((key) => ({
+        value: key,
+        label: COCOClasses[key],
+        chipOneText: key,
     }));
 
     // The full component
@@ -64,9 +90,25 @@ const ModelSettingsPanel = ({}) => {
                 onChangeFn={handleModelSizeSelect}
             />
 
-            <SliderInput labelText="Confidence Filter" marks />
-            <SliderInput labelText="IOU Filter" />
-            <NumberInput labelText="Class Filter" />
+            <SliderInput
+                labelText="Confidence Filter"
+                marks
+                step={5}
+                defaultValue={25}
+            />
+            <SliderInput
+                labelText="IOU Filter"
+                marks
+                step={5}
+                defaultValue={70}
+            />
+            <SelectInput
+                labelText="Class Filter"
+                selectPlaceholder="Choose classes..."
+                selectOptions={classOptions}
+                onChangeFn={handleClassFilterSelect}
+                isMultipleSelect={true}
+            />
         </BasePanel>
     );
     return fullComponent;

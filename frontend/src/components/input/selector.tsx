@@ -22,9 +22,10 @@ interface SelectInputProps {
     }[];
     onChangeFn?: (
         event: React.SyntheticEvent | null,
-        newValue: string | null
+        newValue: string | string[] | null
     ) => void;
     hasHelp?: boolean;
+    isMultipleSelect?: boolean;
 }
 
 /**
@@ -48,6 +49,7 @@ const SelectInput: React.FC<SelectInputProps> = ({
     ], // List of Option Objects
     onChangeFn = () => {},
     hasHelp = true,
+    isMultipleSelect = false,
 }) => {
     // Dynamically create the options for the dropdown
     const options = selectOptions.map((option) => (
@@ -99,7 +101,9 @@ const SelectInput: React.FC<SelectInputProps> = ({
         <Select
             placeholder={selectPlaceholder}
             variant="soft"
-            defaultValue={selectDefaultValue}
+            defaultValue={
+                isMultipleSelect ? [selectDefaultValue] : selectDefaultValue
+            }
             indicator={<KeyboardArrowDown />}
             onChange={onChangeFn}
             sx={{
@@ -112,6 +116,7 @@ const SelectInput: React.FC<SelectInputProps> = ({
                     },
                 },
             }}
+            multiple={isMultipleSelect}
         >
             {options}
         </Select>
