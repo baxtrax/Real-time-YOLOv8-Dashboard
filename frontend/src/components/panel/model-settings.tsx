@@ -17,9 +17,11 @@ import { useEffect } from "react";
  */
 const ModelSettingsPanel = ({}) => {
     const {
-        updateClassFilter,
-        updateModelSize,
         updateSource,
+        updateModelSize,
+        updateConf,
+        updateIOU,
+        updateClassFilter,
         ModelSize,
         ModelSizeParams,
         ModelSizeFLOPs,
@@ -58,6 +60,25 @@ const ModelSettingsPanel = ({}) => {
         // Type guard
         if (typeof newValue === "string") {
             updateModelSize(ModelSize[newValue as keyof typeof ModelSize]);
+        }
+    };
+
+    const handleClassFilterChange = (
+        event: Event | React.SyntheticEvent,
+        newValue: number | number[]
+    ) => {
+        // Type guard
+        if (typeof newValue === "number") {
+            updateConf(newValue);
+        }
+    };
+    const handleIOUFilterChange = (
+        event: Event | React.SyntheticEvent,
+        newValue: number | number[]
+    ) => {
+        // Type guard
+        if (typeof newValue === "number") {
+            updateIOU(newValue);
         }
     };
 
@@ -126,12 +147,14 @@ const ModelSettingsPanel = ({}) => {
                 marks
                 step={5}
                 defaultValue={25}
+                onChangeCommittedFn={handleClassFilterChange}
             />
             <SliderInput
                 labelText="IOU Filter"
                 marks
                 step={5}
                 defaultValue={70}
+                onChangeCommittedFn={handleIOUFilterChange}
             />
             <SelectInput
                 labelText="Class Filter"

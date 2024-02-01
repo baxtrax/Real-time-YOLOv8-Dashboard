@@ -1,3 +1,5 @@
+"use client";
+
 import React from "react";
 import { Slider } from "@mui/joy";
 import BaseInput from "@components/input/base";
@@ -13,6 +15,10 @@ interface SliderInputProps {
     marks?: boolean;
     min?: number;
     max?: number;
+    onChangeCommittedFn?: (
+        event: Event | React.SyntheticEvent,
+        newValue: number | number[]
+    ) => void;
 }
 
 /**
@@ -29,6 +35,7 @@ const SliderInput: React.FC<SliderInputProps> = ({
     marks = false,
     min = 0,
     max = 100,
+    onChangeCommittedFn = () => {},
 }) => {
     // Conditional props for marks (only pull in default value, step, marks, min, max, into slider props if marks is true)
     const marksProps = marks
@@ -51,7 +58,11 @@ const SliderInput: React.FC<SliderInputProps> = ({
         >
             {/* Slider input for the current input */}
 
-            <Slider valueLabelDisplay="auto" {...marksProps} />
+            <Slider
+                onChangeCommitted={onChangeCommittedFn}
+                valueLabelDisplay="auto"
+                {...marksProps}
+            />
         </BaseInput>
     );
     return fullComponent;

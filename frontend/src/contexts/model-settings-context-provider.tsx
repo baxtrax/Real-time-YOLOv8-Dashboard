@@ -121,9 +121,11 @@ interface ProviderProps {
 
 // The props for the context
 type ContextType = {
-    updateModelSize: (newValue: ModelSize) => void;
-    updateClassFilter: (newValue: string[]) => void;
     updateSource: (newValue: VideoDevice) => void;
+    updateModelSize: (newValue: ModelSize) => void;
+    updateConf: (newValue: number) => void;
+    updateIOU: (newValue: number) => void;
+    updateClassFilter: (newValue: string[]) => void;
     ModelSize: typeof ModelSize;
     ModelSizeParams: typeof ModelSizeParams;
     ModelSizeFLOPs: typeof ModelSizeFLOPs;
@@ -141,8 +143,8 @@ const ModelSettingsContextProvider: React.FC<ProviderProps> = ({
     // States
     const [source, setSource] = useState<VideoDevice>();
     const [modelSize, setModelSize] = useState<ModelSize>(ModelSize.N);
-    const [conf, setConf] = useState("0");
-    const [iou, setIou] = useState("0");
+    const [conf, setConf] = useState(25);
+    const [iou, setIOU] = useState(70);
     const [classes, setClasses] = useState<string[]>([]);
 
     // Update functions
@@ -157,6 +159,16 @@ const ModelSettingsContextProvider: React.FC<ProviderProps> = ({
         setModelSize(newValue);
     };
 
+    const updateConf = (newValue: number) => {
+        console.log("Class Filter", newValue);
+        setConf(newValue);
+    };
+
+    const updateIOU = (newValue: number) => {
+        console.log("IOU", newValue);
+        setIOU(newValue);
+    };
+
     const updateClassFilter = (newValue: string[]) => {
         console.log("Class Filter", newValue);
         setClasses(newValue);
@@ -164,9 +176,11 @@ const ModelSettingsContextProvider: React.FC<ProviderProps> = ({
 
     // Passable context values
     const contextValues = {
-        updateModelSize,
-        updateClassFilter,
         updateSource,
+        updateModelSize,
+        updateConf,
+        updateIOU,
+        updateClassFilter,
         ModelSize,
         ModelSizeParams,
         ModelSizeFLOPs,
