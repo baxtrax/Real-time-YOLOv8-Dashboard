@@ -7,6 +7,7 @@ import FeatureSpecificSettingsPanel from "@/components/panel/feature-specific-se
 import PredictionsPanel from "@/components/panel/predictions";
 import WebcamPanel from "@/components/panel/webcam";
 import { ModelSettingsContextProvider } from "@/contexts/model-settings-context-provider";
+import { WebcamContextProvider } from "@/contexts/webcam-context-provider";
 
 const Home = ({}) => {
     // Right side panel
@@ -28,9 +29,11 @@ const Home = ({}) => {
                 useFlexGap
             >
                 <FeatureSpecificSettingsPanel />
-                <ModelSettingsContextProvider>
-                    <ModelSettingsPanel />
-                </ModelSettingsContextProvider>
+                <WebcamContextProvider>
+                    <ModelSettingsContextProvider>
+                        <ModelSettingsPanel />
+                    </ModelSettingsContextProvider>
+                </WebcamContextProvider>
             </Stack>
         </Stack>
     );

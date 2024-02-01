@@ -1,77 +1,71 @@
-// "use client";
-// import { get } from "http";
-// import React, {
-//     ReactNode,
-//     useState,
-//     useContext,
-//     useEffect,
-//     createContext,
-// } from "react";
+"use client";
+import React, { ReactNode, useState, useContext, createContext } from "react";
 
-// // The props for the provider
-// interface ProviderProps {
-//     children: ReactNode;
-// }
+// The props for the provider
+interface ProviderProps {
+    children: ReactNode;
+}
 
-// type VideoDevices = {
-//     value: string;
-//     label: string;
-// };
+type VideoDevice = {
+    deviceID: string;
+    deviceNumber: number;
+    label: string;
+};
 
-// // The props for the context
-// type ContextType = {
-//     getVideoDevices: () => void;
-//     devices: VideoDevices[];
-// };
+export type { VideoDevice }; // So that other files can import it
 
-// // Cheaty way to bypass default value. I will only be using this context in the provider.
-// // https://stackoverflow.com/questions/61333188/react-typescript-avoid-context-default-value
-// const ModelSettingsContext = createContext<ContextType>({} as ContextType);
+// The props for the context
+type ContextType = {
+    devices: VideoDevice[];
+    getVideoDevices: () => void;
+};
 
-// // The context provider
-// const ModelSettingsContextProvider: React.FC<ProviderProps> = ({
-//     children,
-// }) => {
-//     // States
-//     const [devices, setDevices] = useState<VideoDevices[]>();
+// Cheaty way to bypass default value. I will only be using this context in the provider.
+// https://stackoverflow.com/questions/61333188/react-typescript-avoid-context-default-value
+const WebcamContext = createContext<ContextType>({} as ContextType);
 
-//     const getVideoDevices = () => {
-//         navigator.mediaDevices.enumerateDevices().then(function (devices) {
-//             let videoDevices: { value: string; label: string }[] = [];
-//             for (var i = 0; i < devices.length; i++) {
-//                 var device = devices[i];
-//                 if (device.kind === "videoinput") {
-//                     videoDevices.push({
-//                         value: device.deviceId,
-//                         label:
-//                             device.label ||
-//                             "camera " + (videoDevices.length + 1),
-//                     });
-//                 }
-//             }
-//             setDevices(videoDevices);
-//         });
-//     };
+// The context provider
+const WebcamContextProvider: React.FC<ProviderProps> = ({ children }) => {
+    // States
+    const [devices, setDevices] = useState<VideoDevice[]>([]);
 
-//     // Passable context values
-//     const contextValues = {
-//         devices,
-//         getVideoDevices,
-//     };
+    // Functions
+    const getVideoDevices = () => {
+        navigator.mediaDevices.enumerateDevices().then(function (devices) {
+            let videoDevices: VideoDevice[] = [] as VideoDevice[];
+            for (var i = 0; i < devices.length; i++) {
+                var device = devices[i];
+                if (device.kind === "videoinput") {
+                    videoDevices.push({
+                        deviceID: device.deviceId,
+                        deviceNumber: videoDevices.length,
+                        label: device.label || "Camera " + videoDevices.length,
+                    });
+                }
+            }
+            setDevices(videoDevices);
+        });
+    };
 
-//     // The full provider w/ context values
-//     const fullProvider = (
-//         <ModelSettingsContext.Provider value={contextValues}>
-//             {children}
-//         </ModelSettingsContext.Provider>
-//     );
+    // Passable context values
+    const contextValues = {
+        devices,
+        getVideoDevices,
+    };
 
-//     return fullProvider;
-// };
+    // The full provider w/ context values
+    const fullProvider = (
+        <WebcamContext.Provider value={contextValues}>
+            {children}
+        </WebcamContext.Provider>
+    );
 
-// // Custom hook for using the context
-// const useModelSettingsContext = (): ContextType => {
-//     return useContext(ModelSettingsContext);
-// };
+    return fullProvider;
+};
 
-// export { ModelSettingsContextProvider, useModelSettingsContext };
+// Custom hook for using the context
+const useWebcamContext = (): ContextType => {
+    return useContext(WebcamContext);
+};
+
+export { WebcamContextProvider, useWebcamContext };

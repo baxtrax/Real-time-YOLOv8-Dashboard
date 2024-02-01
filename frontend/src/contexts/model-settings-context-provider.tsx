@@ -1,5 +1,6 @@
 "use client";
 import React, { ReactNode, useState, useContext, createContext } from "react";
+import { VideoDevice } from "@/contexts/webcam-context-provider";
 
 // The model sizes
 enum ModelSize {
@@ -122,6 +123,7 @@ interface ProviderProps {
 type ContextType = {
     updateModelSize: (newValue: ModelSize) => void;
     updateClassFilter: (newValue: string[]) => void;
+    updateSource: (newValue: VideoDevice) => void;
     ModelSize: typeof ModelSize;
     ModelSizeParams: typeof ModelSizeParams;
     ModelSizeFLOPs: typeof ModelSizeFLOPs;
@@ -137,13 +139,19 @@ const ModelSettingsContextProvider: React.FC<ProviderProps> = ({
     children,
 }) => {
     // States
-    const [source, setSource] = useState("0");
-    const [modelSize, setModelSize] = useState(ModelSize.N);
+    const [source, setSource] = useState<VideoDevice>();
+    const [modelSize, setModelSize] = useState<ModelSize>(ModelSize.N);
     const [conf, setConf] = useState("0");
     const [iou, setIou] = useState("0");
     const [classes, setClasses] = useState<string[]>([]);
 
     // Update functions
+
+    const updateSource = (newValue: VideoDevice) => {
+        console.log("Source", newValue);
+        setSource(newValue);
+    };
+
     const updateModelSize = (newValue: ModelSize) => {
         console.log("Model Size", newValue);
         setModelSize(newValue);
@@ -158,6 +166,7 @@ const ModelSettingsContextProvider: React.FC<ProviderProps> = ({
     const contextValues = {
         updateModelSize,
         updateClassFilter,
+        updateSource,
         ModelSize,
         ModelSizeParams,
         ModelSizeFLOPs,
