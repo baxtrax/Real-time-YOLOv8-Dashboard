@@ -1,0 +1,5 @@
+{
+  "devDependencies": {
+    "@types/w3c-image-capture": "^1.0.10"
+  }
+}

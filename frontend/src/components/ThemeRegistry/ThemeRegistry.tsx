@@ -13,11 +13,11 @@ export default function ThemeRegistry({
 }) {
     return (
         <NextAppDirEmotionCacheProvider options={{ key: "joy" }}>
-            <CssVarsProvider defaultMode="system" theme={theme}>
+            <CssVarsProvider defaultMode="dark" theme={theme}>
                 <CssBaseline />
                 <GlobalStyles // Using ease in cubic bezier for the transition https://easings.net/#easeInCubic
                     styles={`
-                            :root {--darkmode-transition-duration: 0.5s;},
+                            :root {--darkmode-transition-duration: 0.2s;},
                             * { transition: background-color var(--darkmode-transition-duration) cubic-bezier(0.32, 0, 0.67, 0), 
                                              border-color var(--darkmode-transition-duration) cubic-bezier(0.32, 0, 0.67, 0);
                             },

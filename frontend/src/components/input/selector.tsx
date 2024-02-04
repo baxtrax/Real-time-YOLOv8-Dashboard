@@ -65,7 +65,7 @@ const SelectInput: React.FC<SelectInputProps> = ({
                 {option.chipOneText != null && (
                     <Chip
                         size="sm"
-                        variant="outlined"
+                        variant="soft"
                         color="success"
                         sx={{
                             ml: "auto",
@@ -80,7 +80,7 @@ const SelectInput: React.FC<SelectInputProps> = ({
                 {option.chipTwoText != null && (
                     <Chip
                         size="sm"
-                        variant="outlined"
+                        variant="soft"
                         color="warning"
                         sx={{
                             ml: "auto",

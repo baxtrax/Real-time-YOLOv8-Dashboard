@@ -8,6 +8,7 @@ import PredictionsPanel from "@/components/panel/predictions";
 import WebcamPanel from "@/components/panel/webcam";
 import { ModelSettingsContextProvider } from "@/contexts/model-settings-context-provider";
 import { WebcamContextProvider } from "@/contexts/webcam-context-provider";
+import { SnackbarContextProvider } from "@/contexts/snackbar-context-provider";
 
 const Home = ({}) => {
     // Right side panel
@@ -62,17 +63,19 @@ const Home = ({}) => {
                 minHeight: "100vh",
             }}
         >
-            <Stack
-                spacing={2}
-                direction="row"
-                width="100%"
-                margin="1rem"
-                flexWrap="wrap"
-                useFlexGap
-            >
-                {leftPanel}
-                {rightPanel}
-            </Stack>
+            <SnackbarContextProvider>
+                <Stack
+                    spacing={2}
+                    direction="row"
+                    width="100%"
+                    margin="1rem"
+                    flexWrap="wrap"
+                    useFlexGap
+                >
+                    {leftPanel}
+                    {rightPanel}
+                </Stack>
+            </SnackbarContextProvider>
         </Sheet>
     );
     return fullComponent;

@@ -41,6 +41,19 @@ const theme = extendTheme({
                 }),
             },
         },
+        JoyChip: {
+            styleOverrides: {
+                root: ({ ownerState, theme }) => ({
+                    // for the default color scheme (light)
+                    boxShadow: theme.vars.shadow.sm,
+
+                    // for the dark color scheme
+                    [theme.getColorSchemeSelector("dark")]: {
+                        boxShadow: "none",
+                    },
+                }),
+            },
+        },
     },
     colorSchemes: {
         light: {

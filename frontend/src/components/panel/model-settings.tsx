@@ -5,7 +5,6 @@ import BasePanel from "@/components/panel/base";
 import NumberInput from "@/components/input/number";
 import { useModelSettingsContext } from "@/contexts/model-settings-context-provider";
 import { useWebcamContext } from "@/contexts/webcam-context-provider";
-import { VideoDevice } from "@/contexts/webcam-context-provider";
 import { useEffect } from "react";
 
 /**
@@ -17,18 +16,17 @@ import { useEffect } from "react";
  */
 const ModelSettingsPanel = ({}) => {
     const {
-        updateSource,
         updateModelSize,
         updateConf,
         updateIOU,
         updateClassFilter,
-        ModelSize,
-        ModelSizeParams,
-        ModelSizeFLOPs,
-        COCOClasses,
+        MODEL_SIZE,
+        MODEL_SIZE_PARAMS,
+        MODEL_SIZE_FLOPS,
+        COCO_CLASSES,
     } = useModelSettingsContext();
 
-    const { devices, getVideoDevices } = useWebcamContext();
+    const { devices, getVideoDevices, updateSource } = useWebcamContext();
 
     // ONLOAD
     // Get the video devices
@@ -59,7 +57,7 @@ const ModelSettingsPanel = ({}) => {
     ) => {
         // Type guard
         if (typeof newValue === "string") {
-            updateModelSize(ModelSize[newValue as keyof typeof ModelSize]);
+            updateModelSize(MODEL_SIZE[newValue as keyof typeof MODEL_SIZE]);
         }
     };
 
@@ -102,20 +100,20 @@ const ModelSettingsPanel = ({}) => {
 
     // Create the options for the model size selector based off enums
     const modelSizeOptions = (
-        Object.keys(ModelSize) as Array<keyof typeof ModelSize>
+        Object.keys(MODEL_SIZE) as Array<keyof typeof MODEL_SIZE>
     ).map((key) => ({
         value: key,
-        label: ModelSize[key],
-        chipOneText: ModelSizeParams[key],
-        chipTwoText: ModelSizeFLOPs[key],
+        label: MODEL_SIZE[key],
+        chipOneText: MODEL_SIZE_PARAMS[key],
+        chipTwoText: MODEL_SIZE_FLOPS[key],
     }));
 
     // Create the options for the class filter selector based off enums
     const classOptions = (
-        Object.keys(COCOClasses) as Array<keyof typeof COCOClasses>
+        Object.keys(COCO_CLASSES) as Array<keyof typeof COCO_CLASSES>
     ).map((key) => ({
         value: key,
-        label: COCOClasses[key],
+        label: COCO_CLASSES[key],
         chipOneText: key,
     }));
 

@@ -1,9 +1,9 @@
 "use client";
 import React, { ReactNode, useState, useContext, createContext } from "react";
-import { VideoDevice } from "@/contexts/webcam-context-provider";
+import { useSnackbarContext } from "@/contexts/snackbar-context-provider";
 
 // The model sizes
-enum ModelSize {
+enum MODEL_SIZE {
     N = "Nano",
     S = "Small",
     M = "Medium",
@@ -12,7 +12,7 @@ enum ModelSize {
 }
 
 // Parameters for each model size
-enum ModelSizeParams {
+enum MODEL_SIZE_PARAMS {
     N = "3.2 M",
     S = "11.2 M",
     M = "25.9 M",
@@ -21,7 +21,7 @@ enum ModelSizeParams {
 }
 
 // FLOPs for each model size
-enum ModelSizeFLOPs {
+enum MODEL_SIZE_FLOPS {
     N = "8.7 B",
     S = "28.6 B",
     M = "78.9 B",
@@ -29,9 +29,9 @@ enum ModelSizeFLOPs {
     X = "257.8 B",
 }
 
-type COCOClasses = Record<string, string>;
+type COCO_CLASSES = Record<string, string>;
 
-let COCOClasses: COCOClasses = {
+let COCO_CLASSES: COCO_CLASSES = {
     0: "Person",
     1: "Bicycle",
     2: "Car",
@@ -121,15 +121,14 @@ interface ProviderProps {
 
 // The props for the context
 type ContextType = {
-    updateSource: (newValue: VideoDevice) => void;
-    updateModelSize: (newValue: ModelSize) => void;
+    updateModelSize: (newValue: MODEL_SIZE) => void;
     updateConf: (newValue: number) => void;
     updateIOU: (newValue: number) => void;
     updateClassFilter: (newValue: string[]) => void;
-    ModelSize: typeof ModelSize;
-    ModelSizeParams: typeof ModelSizeParams;
-    ModelSizeFLOPs: typeof ModelSizeFLOPs;
-    COCOClasses: typeof COCOClasses;
+    MODEL_SIZE: typeof MODEL_SIZE;
+    MODEL_SIZE_PARAMS: typeof MODEL_SIZE_PARAMS;
+    MODEL_SIZE_FLOPS: typeof MODEL_SIZE_FLOPS;
+    COCO_CLASSES: typeof COCO_CLASSES;
 };
 
 // Cheaty way to bypass default value. I will only be using this context in the provider.
@@ -141,50 +140,54 @@ const ModelSettingsContextProvider: React.FC<ProviderProps> = ({
     children,
 }) => {
     // States
-    const [source, setSource] = useState<VideoDevice>();
-    const [modelSize, setModelSize] = useState<ModelSize>(ModelSize.N);
+    const [modelSize, setModelSize] = useState<MODEL_SIZE>(MODEL_SIZE.N);
     const [conf, setConf] = useState(25);
     const [iou, setIOU] = useState(70);
     const [classes, setClasses] = useState<string[]>([]);
 
+    const {
+        displayInfoSnackbar,
+        displaySuccessSnackbar,
+        displayErrorSnackbar,
+        displayWarningSnackbar,
+    } = useSnackbarContext();
+
     // Update functions
 
-    const updateSource = (newValue: VideoDevice) => {
-        console.log("Source", newValue);
-        setSource(newValue);
-    };
-
-    const updateModelSize = (newValue: ModelSize) => {
+    const updateModelSize = (newValue: MODEL_SIZE) => {
         console.log("Model Size", newValue);
+        displayInfoSnackbar(`Model size changed to ${newValue}`);
         setModelSize(newValue);
     };
 
     const updateConf = (newValue: number) => {
         console.log("Class Filter", newValue);
+        displayErrorSnackbar(`Confidence changed to ${newValue}`);
         setConf(newValue);
     };
 
     const updateIOU = (newValue: number) => {
         console.log("IOU", newValue);
+        displayWarningSnackbar(`IOU changed to ${newValue}`);
         setIOU(newValue);
     };
 
     const updateClassFilter = (newValue: string[]) => {
         console.log("Class Filter", newValue);
+        displaySuccessSnackbar(`Class filter changed to ${newValue}`);
         setClasses(newValue);
     };
 
     // Passable context values
     const contextValues = {
-        updateSource,
         updateModelSize,
         updateConf,
         updateIOU,
         updateClassFilter,
-        ModelSize,
-        ModelSizeParams,
-        ModelSizeFLOPs,
-        COCOClasses,
+        MODEL_SIZE,
+        MODEL_SIZE_PARAMS,
+        MODEL_SIZE_FLOPS,
+        COCO_CLASSES,
     };
 
     // The full provider w/ context values
