@@ -1,5 +1,5 @@
 "use client";
-import { IconButton, Snackbar } from "@mui/joy";
+import { IconButton, Snackbar, LinearProgress, Typography } from "@mui/joy";
 import React, { ReactNode, useState, useContext, createContext } from "react";
 import {
     Close as CloseIcon,
@@ -8,6 +8,8 @@ import {
     WarningAmberOutlined as WarningIcon,
     ReportProblemOutlined as ErrorIcon,
 } from "@mui/icons-material";
+
+import { useCountUp } from "use-count-up";
 
 interface Level {
     color: "neutral" | "success" | "warning" | "danger";
@@ -65,6 +67,7 @@ const SnackbarContextProvider: React.FC<ProviderProps> = ({ children }) => {
         if (currentSnackbar === null) {
             setCurrentSnackbar(newSnackbar);
             setSnackbarOpen(true);
+            reset();
         } else {
             setSnackbarQueue([...snackbarQueue, newSnackbar]);
         }
@@ -91,7 +94,6 @@ const SnackbarContextProvider: React.FC<ProviderProps> = ({ children }) => {
         event: Event | React.SyntheticEvent | null,
         reason: string
     ) => {
-        console.log("Close Reason: ", reason);
         if (reason === "clickaway") {
             return;
         }
@@ -103,6 +105,7 @@ const SnackbarContextProvider: React.FC<ProviderProps> = ({ children }) => {
         if (snackbarQueue.length > 0) {
             setCurrentSnackbar(snackbarQueue[0]);
             setSnackbarQueue(snackbarQueue.slice(1));
+            reset();
         }
 
         if (snackbarQueue.length == 0 && currentSnackbar !== null) {
@@ -120,6 +123,15 @@ const SnackbarContextProvider: React.FC<ProviderProps> = ({ children }) => {
         displayErrorSnackbar,
     };
 
+    const { value, reset } = useCountUp({
+        isCounting: true,
+        duration: 5,
+        start: 0,
+        end: 100,
+        onComplete: () => nextSnackbar(),
+        // onComplete: () => ({ shouldRepeat: true }),
+    });
+
     // The full provider w/ context values
     const fullProvider = (
         <SnackbarContext.Provider value={contextValues}>
@@ -131,17 +143,44 @@ const SnackbarContextProvider: React.FC<ProviderProps> = ({ children }) => {
                 size="lg"
                 variant="soft"
                 color={currentSnackbar?.level.color}
+                sx={{ overflow: "hidden", paddingBottom: "2rem" }}
                 startDecorator={currentSnackbar?.level.icon}
                 endDecorator={
                     <IconButton
                         onClick={nextSnackbar}
-                        sx={{ bgcolor: "transparent !important" }}
+                        sx={{
+                            bgcolor: "transparent !important",
+                        }}
                     >
                         <CloseIcon />
                     </IconButton>
                 }
             >
                 {currentSnackbar?.message}
+                <LinearProgress
+                    value={Number(value!)}
+                    determinate
+                    thickness={18}
+                    color={currentSnackbar?.level.color}
+                    sx={{
+                        position: "absolute",
+                        right: "0",
+                        left: "0",
+                        top: "82%",
+                        borderRadius: "0",
+                    }}
+                >
+                    {snackbarQueue.length > 0 && (
+                        <Typography
+                            level="body-xs"
+                            fontWeight="xl"
+                            textColor="common.white"
+                            sx={{ mixBlendMode: "soft-light" }}
+                        >
+                            {`${snackbarQueue.length} Left`}
+                        </Typography>
+                    )}
+                </LinearProgress>
             </Snackbar>
         </SnackbarContext.Provider>
     );

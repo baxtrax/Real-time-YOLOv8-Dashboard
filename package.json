@@ -1,5 +1,8 @@
 {
   "devDependencies": {
     "@types/w3c-image-capture": "^1.0.10"
+  },
+  "dependencies": {
+    "use-count-up": "^3.0.1"
   }
 }
