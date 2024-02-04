@@ -5,7 +5,7 @@ import { Slider } from "@mui/joy";
 import BaseInput from "@components/input/base";
 
 /**
- * The props for the SliderInput component. For ease of type checking
+ * SliderInput component props
  */
 interface SliderInputProps {
     labelText?: string;
@@ -22,10 +22,27 @@ interface SliderInputProps {
 }
 
 /**
- * Renders a SliderInput component. Acts as a sliding input field the user.
+ * SliderInput component for rendering a slider input with a label and help
  *
- * @param props - The component props.
- * @returns The rendered SliderInput component.
+ * @param labelText
+ * (OPTIONAL) The label text for the input.
+ * @param hasHelp
+ * (OPTIONAL) Whether the input has a help button.
+ * @param defaultValue
+ * (OPTIONAL) The default value for the slider input.
+ * @param step
+ * (OPTIONAL) The step for the slider input.
+ * @param marks
+ * (OPTIONAL) Whether the slider input has marks.
+ * @param min
+ * (OPTIONAL) The minimum value for the slider input.
+ * @param max
+ * (OPTIONAL) The maximum value for the slider input.
+ * @param onChangeCommittedFn
+ * (OPTIONAL) The function to call when the slider input changes.
+ *
+ * @returns
+ * The SliderInput component.
  */
 const SliderInput: React.FC<SliderInputProps> = ({
     labelText = "placeholder",
@@ -37,7 +54,8 @@ const SliderInput: React.FC<SliderInputProps> = ({
     max = 100,
     onChangeCommittedFn = () => {},
 }) => {
-    // Conditional props for marks (only pull in default value, step, marks, min, max, into slider props if marks is true)
+    // Conditional props for marks (only pull in default value, step, marks,
+    // min, max, into slider props if marks is true)
     const marksProps = marks
         ? {
               defaultValue,
@@ -56,8 +74,6 @@ const SliderInput: React.FC<SliderInputProps> = ({
             helpSize="md"
             helpPosition="right"
         >
-            {/* Slider input for the current input */}
-
             <Slider
                 onChangeCommitted={onChangeCommittedFn}
                 valueLabelDisplay="auto"

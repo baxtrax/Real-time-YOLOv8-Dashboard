@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+
 import { Option, Chip, Stack } from "@mui/joy";
 import Select, { selectClasses } from "@mui/joy/Select";
 import KeyboardArrowDown from "@mui/icons-material/KeyboardArrowDown";
@@ -8,10 +9,12 @@ import KeyboardArrowDown from "@mui/icons-material/KeyboardArrowDown";
 import BaseInput from "@components/input/base";
 
 /**
- * The props for the SelectInput component. For ease of type checking
+ * SelectInput component props
  */
 interface SelectInputProps {
     labelText?: string;
+    hasHelp?: boolean;
+    isMultipleSelect?: boolean;
     selectPlaceholder?: string;
     selectDefaultValue?: string;
     selectOptions?: {
@@ -24,19 +27,36 @@ interface SelectInputProps {
         event: React.SyntheticEvent | null,
         newValue: string | string[] | null
     ) => void;
-    hasHelp?: boolean;
-    isMultipleSelect?: boolean;
 }
 
 /**
- * Renders a SelectInput component. Acts as a dropdown menu for the user to select.
- * Includes a label, dropdown, and help button.
+ * SelectInput component for rendering a select input with a label and help
+ * button. The select input is a dropdown menu with options.
+ * Includes chips for additional information if needed. Supports multiple
+ * select.
  *
- * @param props - The component props.
- * @returns The rendered SelectInput component.
+ * @param labelText
+ * (OPTIONAL) The label text for the input.
+ * @param hasHelp
+ * (OPTIONAL) Whether the input has a help button.
+ * @param isMultipleSelect
+ * (OPTIONAL) Whether the select input is a multiple select.
+ * @param selectPlaceholder
+ * (OPTIONAL) The placeholder text for the select input.
+ * @param selectDefaultValue
+ * (OPTIONAL) The default value for the select input.
+ * @param selectOptions
+ * (OPTIONAL) The options for the select input. List of Option Objects.
+ * @param onChangeFn
+ * (OPTIONAL) The function to call when the select input changes.
+ *
+ * @returns
+ * The SelectInput component.
  */
 const SelectInput: React.FC<SelectInputProps> = ({
     labelText = "placeholder",
+    hasHelp = true,
+    isMultipleSelect = false,
     selectPlaceholder = "placeholder",
     selectDefaultValue = "placeholder",
     selectOptions = [
@@ -46,10 +66,8 @@ const SelectInput: React.FC<SelectInputProps> = ({
             chipOneText: null,
             chipTwoText: null,
         },
-    ], // List of Option Objects
+    ],
     onChangeFn = () => {},
-    hasHelp = true,
-    isMultipleSelect = false,
 }) => {
     // Dynamically create the options for the dropdown
     const options = selectOptions.map((option) => (
@@ -62,6 +80,7 @@ const SelectInput: React.FC<SelectInputProps> = ({
                 flexGrow={1}
                 spacing={2}
             >
+                {/*Chip creation for additional information*/}
                 {option.chipOneText != null && (
                     <Chip
                         size="sm"

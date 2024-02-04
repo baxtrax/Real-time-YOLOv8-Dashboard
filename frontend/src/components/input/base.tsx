@@ -1,24 +1,39 @@
 import React, { ReactNode } from "react";
+
 import { Stack, Typography, IconButton } from "@mui/joy";
+
 import QuestionMark from "@mui/icons-material/QuestionMark";
 
 /**
- * The props for the BaseInput component. For ease of type checking
+ * BaseInput component props
  */
 interface BaseInputProps {
     labelText: string;
     hasHelp: boolean;
     helpPosition: "left" | "right";
     helpSize: "sm" | "md" | "lg";
+    stretch?: "middle" | "left";
     children: ReactNode;
-    stretch?: "middle" | "left"; // Stretch label ("left component") or input ("middle component")
 }
 
 /**
  * BaseInput component for rendering an input with a label and help button.
  *
- * @param props - The component props.
- * @returns The rendered BaseInput component.
+ * @param labelText
+ * The label text for the input.
+ * @param hasHelp
+ * Whether the input has a help button.
+ * @param helpPosition
+ * The position of the help button. Valid values are "left" and "right".
+ * @param helpSize
+ * The size of the help button. Valid values are "sm", "md", and "lg".
+ * @param stretch
+ * (OPTIONAL) The stretch of the input. Valid values are "middle" and "left".
+ * @param children
+ * The children of the input.
+ *
+ * @returns
+ * The BaseInput component.
  */
 const BaseInput: React.FC<BaseInputProps> = ({
     labelText,
@@ -63,14 +78,11 @@ const BaseInput: React.FC<BaseInputProps> = ({
             alignItems="center"
             spacing={2}
         >
-            {/* Conditional help button */}
             {hasHelp && helpPosition == "left" && helpButton}
 
-            {/* Label and passed in children */}
             {label}
             {children}
 
-            {/* Conditional help button*/}
             {hasHelp && helpPosition == "right" && helpButton}
         </Stack>
     );

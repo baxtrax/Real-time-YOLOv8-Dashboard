@@ -1,17 +1,27 @@
 import * as React from "react";
+
+import { Stack, Sheet } from "@mui/joy";
+
 import ModelSettingsPanel from "@/components/panel/model-settings";
 import InformationPanel from "@/components/panel/information";
-import { Stack, Sheet } from "@mui/joy";
 import FeatureSettingsPanel from "@/components/panel/feature-settings";
 import FeatureSpecificSettingsPanel from "@/components/panel/feature-specific-settings";
 import PredictionsPanel from "@/components/panel/predictions";
 import WebcamPanel from "@/components/panel/webcam";
+
 import { ModelSettingsContextProvider } from "@/contexts/model-settings-context-provider";
 import { WebcamContextProvider } from "@/contexts/webcam-context-provider";
 import { SnackbarContextProvider } from "@/contexts/snackbar-context-provider";
 
+/**
+ * Overall structure of the home page. Is combosed of multiple panels. Using
+ * the nested stack component in combination with flexbox to layout the panels.
+ */
 const Home = ({}) => {
-    // Right side panel
+    /**
+     * Right side panel containing the information, feature settings, and model
+     * settings panels.
+     */
     const rightPanel = (
         <Stack
             spacing={2}
@@ -39,7 +49,9 @@ const Home = ({}) => {
         </Stack>
     );
 
-    // Left side panel
+    /**
+     * Left side panel containing the webcam and predictions panels.
+     */
     const leftPanel = (
         <Stack
             spacing={2}
@@ -53,6 +65,9 @@ const Home = ({}) => {
         </Stack>
     );
 
+    /**
+     * Full component containing the left and right panels.
+     */
     const fullComponent = (
         <Sheet
             sx={{

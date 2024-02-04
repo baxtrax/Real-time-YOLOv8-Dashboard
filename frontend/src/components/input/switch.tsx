@@ -1,11 +1,13 @@
 "use client";
 
 import React from "react";
+
 import Switch, { switchClasses } from "@mui/joy/Switch";
+
 import BaseInput from "@components/input/base";
 
 /**
- * The props for the SwitchInput component. For ease of type checking
+ * SwitchInput component props
  */
 interface SwitchInputProps {
     labelText?: string;
@@ -13,10 +15,15 @@ interface SwitchInputProps {
 }
 
 /**
- * Renders a SwitchInput component. Acts as a switch (like a button) for the user.
+ * SwitchInput component for rendering a switch input with a label and help
  *
- * @param props - The component props.
- * @returns The rendered SwitchInput component.
+ * @param labelText
+ * (OPTIONAL) The label text for the input.
+ * @param hasHelp
+ * (OPTIONAL) Whether the input has a help button.
+ *
+ * @returns
+ * The NumberInput component.
  */
 const SwitchInput: React.FC<SwitchInputProps> = ({
     labelText = "placeholder",
@@ -31,7 +38,6 @@ const SwitchInput: React.FC<SwitchInputProps> = ({
             helpPosition="right"
             stretch="left"
         >
-            {/* Switch input for the current input */}
             <Switch
                 sx={{
                     [`& .${switchClasses.thumb}`]: {

@@ -1,9 +1,11 @@
 import React from "react";
+
 import { Input } from "@mui/joy";
+
 import BaseInput from "@components/input/base";
 
 /**
- * The props for the NumberInput component. For ease of type checking
+ * NumberInput component props
  */
 interface NumberInputProps {
     labelText?: string;
@@ -11,11 +13,16 @@ interface NumberInputProps {
 }
 
 /**
- * Renders a NumberInput component. Acts as a input field the user. Includes a label,
- * input field, and help button.
+ * NumberInput component for rendering a number input with a label and help
+ * button.
  *
- * @param props - The component props.
- * @returns The rendered NumberInput component.
+ * @param labelText
+ * (OPTIONAL) The label text for the input.
+ * @param hasHelp
+ * (OPTIONAL) Whether the input has a help button.
+ *
+ * @returns
+ * The NumberInput component.
  */
 const NumberInput: React.FC<NumberInputProps> = ({
     labelText = "placeholder",
@@ -29,7 +36,6 @@ const NumberInput: React.FC<NumberInputProps> = ({
             helpSize="md"
             helpPosition="right"
         >
-            {/* Number input for the current input */}
             <Input fullWidth sx={{ boxShadow: "none" }} />
         </BaseInput>
     );
