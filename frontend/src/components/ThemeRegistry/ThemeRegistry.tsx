@@ -29,7 +29,9 @@ export default function ThemeRegistry({
                                                  color var(--darkmode-transition-duration) cubic-bezier(0.32, 0, 0.67, 0),
                                                  box-shadow var(--darkmode-transition-duration) cubic-bezier(0.32, 0, 0.67, 0);},
                             
-                            h1, h2, h3, h4, p {transition: color var(--darkmode-transition-duration) cubic-bezier(0.32, 0, 0.67, 0);}`}
+                            h1, h2, h3, h4, p {transition: color var(--darkmode-transition-duration) cubic-bezier(0.32, 0, 0.67, 0);},
+                            .MuiLinearProgress-determinate::before {transition: inline-size 0.25s ease-out;}
+                            `}
                 />
                 {children}
             </CssVarsProvider>

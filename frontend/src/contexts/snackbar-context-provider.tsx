@@ -10,6 +10,7 @@ import {
 } from "@mui/icons-material";
 
 import { useCountUp } from "use-count-up";
+import next from "next";
 
 interface Level {
     color: "neutral" | "success" | "warning" | "danger";
@@ -64,11 +65,13 @@ const SnackbarContextProvider: React.FC<ProviderProps> = ({ children }) => {
             level,
         };
 
-        if (currentSnackbar === null) {
+        if (!snackbarOpen) {
+            // If no snackbar is open, display the new snackbar
             setCurrentSnackbar(newSnackbar);
             setSnackbarOpen(true);
             reset();
         } else {
+            // Otherwise, add the new snackbar to the queue
             setSnackbarQueue([...snackbarQueue, newSnackbar]);
         }
     };
@@ -103,14 +106,19 @@ const SnackbarContextProvider: React.FC<ProviderProps> = ({ children }) => {
 
     const nextSnackbar = () => {
         if (snackbarQueue.length > 0) {
-            setCurrentSnackbar(snackbarQueue[0]);
-            setSnackbarQueue(snackbarQueue.slice(1));
-            reset();
+            // Delay for 2 seconds to allow linear progress to finish
+            setTimeout(() => {
+                setCurrentSnackbar(snackbarQueue[0]);
+                setSnackbarQueue(snackbarQueue.slice(1));
+                reset();
+            }, 1000);
         }
 
-        if (snackbarQueue.length == 0 && currentSnackbar !== null) {
-            setSnackbarOpen(false);
-            setCurrentSnackbar(null);
+        if (snackbarQueue.length == 0 && snackbarOpen) {
+            // Delay for 2 seconds to allow linear progress to finish
+            setTimeout(() => {
+                setSnackbarOpen(false);
+            }, 1000);
         }
     };
 
@@ -125,18 +133,18 @@ const SnackbarContextProvider: React.FC<ProviderProps> = ({ children }) => {
 
     const { value, reset } = useCountUp({
         isCounting: true,
+        easing: "linear",
         duration: 5,
         start: 0,
+        updateInterval: 1,
         end: 100,
         onComplete: () => nextSnackbar(),
-        // onComplete: () => ({ shouldRepeat: true }),
     });
 
     // The full provider w/ context values
     const fullProvider = (
         <SnackbarContext.Provider value={contextValues}>
             {children}
-            {/* Add snackbar here */}
             <Snackbar
                 open={snackbarOpen}
                 onClose={handleClose}
