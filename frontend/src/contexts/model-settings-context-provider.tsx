@@ -1,6 +1,5 @@
 "use client";
 import React, { ReactNode, useState, useContext, createContext } from "react";
-import { useSnackbarContext } from "@/contexts/snackbar-context-provider";
 
 // The model sizes
 enum MODEL_SIZE {
@@ -145,36 +144,25 @@ const ModelSettingsContextProvider: React.FC<ProviderProps> = ({
     const [iou, setIOU] = useState(70);
     const [classes, setClasses] = useState<string[]>([]);
 
-    const {
-        displayInfoSnackbar,
-        displaySuccessSnackbar,
-        displayErrorSnackbar,
-        displayWarningSnackbar,
-    } = useSnackbarContext();
-
     // Update functions
 
     const updateModelSize = (newValue: MODEL_SIZE) => {
         console.log("Model Size", newValue);
-        displayInfoSnackbar(`Model size changed to ${newValue}`);
         setModelSize(newValue);
     };
 
     const updateConf = (newValue: number) => {
         console.log("Class Filter", newValue);
-        displayErrorSnackbar(`Confidence changed to ${newValue}`);
         setConf(newValue);
     };
 
     const updateIOU = (newValue: number) => {
         console.log("IOU", newValue);
-        displayWarningSnackbar(`IOU changed to ${newValue}`);
         setIOU(newValue);
     };
 
     const updateClassFilter = (newValue: string[]) => {
         console.log("Class Filter", newValue);
-        displaySuccessSnackbar(`Class filter changed to ${newValue}`);
         setClasses(newValue);
     };
 

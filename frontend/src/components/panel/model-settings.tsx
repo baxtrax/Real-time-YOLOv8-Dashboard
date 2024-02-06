@@ -30,6 +30,7 @@ const ModelSettingsPanel = ({}) => {
 
     // ONLOAD
     // Get the video devices
+    // @TODO call this on select open?
     useEffect(() => {
         getVideoDevices();
     }, []);

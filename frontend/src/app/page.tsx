@@ -12,6 +12,7 @@ import WebcamPanel from "@/components/panel/webcam";
 import { ModelSettingsContextProvider } from "@/contexts/model-settings-context-provider";
 import { WebcamContextProvider } from "@/contexts/webcam-context-provider";
 import { SnackbarContextProvider } from "@/contexts/snackbar-context-provider";
+import { SocketContextProvider } from "@/contexts/model-socket";
 
 /**
  * Overall structure of the home page. Is combosed of multiple panels. Using
@@ -79,17 +80,19 @@ const Home = ({}) => {
             }}
         >
             <SnackbarContextProvider>
-                <Stack
-                    spacing={2}
-                    direction="row"
-                    width="100%"
-                    margin="1rem"
-                    flexWrap="wrap"
-                    useFlexGap
-                >
-                    {leftPanel}
-                    {rightPanel}
-                </Stack>
+                <SocketContextProvider>
+                    <Stack
+                        spacing={2}
+                        direction="row"
+                        width="100%"
+                        margin="1rem"
+                        flexWrap="wrap"
+                        useFlexGap
+                    >
+                        {leftPanel}
+                        {rightPanel}
+                    </Stack>
+                </SocketContextProvider>
             </SnackbarContextProvider>
         </Sheet>
     );

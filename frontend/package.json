@@ -18,7 +18,8 @@
     "@mui/material": "^5.15.5",
     "next": "latest",
     "react": "latest",
-    "react-dom": "latest"
+    "react-dom": "latest",
+    "socket.io-client": "^4.7.4"
   },
   "devDependencies": {
     "@types/node": "latest",
