@@ -10,7 +10,6 @@ import {
 } from "@mui/icons-material";
 
 import { useCountUp } from "use-count-up";
-import next from "next";
 
 interface Level {
     color: "neutral" | "success" | "warning" | "danger";

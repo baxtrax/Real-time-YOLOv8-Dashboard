@@ -64,10 +64,52 @@ const WebcamContextProvider: React.FC<ProviderProps> = ({ children }) => {
     const updateSource = (newValue: VideoDevice) => {
         console.log("Source", newValue);
 
-        if (socketRef.current) {
-            socketRef.current.connected;
-            console.log("Connected to server");
-        }
+        // Get the new video stream
+        navigator.mediaDevices
+            .getUserMedia({ video: { deviceId: newValue.deviceID } })
+            .then((stream) => {
+                console.log("Got video stream: ", stream);
+                setVideoStream(stream);
+
+                const sendFrame = async () => {
+                    // @TODO, migrate away from ImageCapture, not support in all browsers
+                    const imageCapture = new ImageCapture(
+                        stream.getVideoTracks()[0]
+                    );
+
+                    try {
+                        const bitmap = await imageCapture.grabFrame();
+
+                        // Create a canvas to draw the ImageBitmap
+                        const canvas = document.createElement("canvas");
+                        canvas.width = bitmap.width;
+                        canvas.height = bitmap.height;
+
+                        // Use ImageBitmapRenderingContext to draw the ImageBitmap
+                        const context = canvas.getContext("bitmaprenderer");
+                        if (context) {
+                            context.transferFromImageBitmap(bitmap);
+
+                            // Convert canvas content to Blob
+                            canvas.toBlob((blob) => {
+                                // Send the encoded data to the WebSocket as a Blob
+                                if (blob) {
+                                    console.log("Sending frame");
+                                    socketRef.current?.emit("frame", blob);
+                                }
+                                // requestAnimationFrame(sendFrame);
+                            }, "image/jpeg");
+                        }
+                    } catch (error) {
+                        console.error("Error grabbing frame:", error);
+                    }
+                };
+
+                sendFrame();
+            })
+            .catch((error) => {
+                console.error("Error getting user media:", error);
+            });
     };
 
     // // Connect if not connected
