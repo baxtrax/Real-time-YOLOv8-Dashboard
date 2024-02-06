@@ -1,17 +1,27 @@
-import {
-    LinearProgress,
-    LinearProgressTypeMap,
-    Stack,
-    Typography,
-} from "@mui/joy";
+import React from "react";
 
-import React, { ReactNode } from "react";
+import { LinearProgress, Stack, Typography } from "@mui/joy";
 
+/**
+ * LinearProgressWithLabel component props
+ */
 interface LinearProgressWithLabelProps {
     labelText?: string;
     value?: number;
 }
 
+/**
+ * LinearProgressWithLabel component for rendering a linear progress bar with a
+ * label.
+ *
+ * @param labelText
+ * (OPTIONAL) The label text for the progress bar.
+ * @param value
+ * (OPTIONAL) The value of the progress bar.
+ *
+ * @returns
+ * The LinearProgressWithLabel component.
+ */
 const LinearProgressWithLabel: React.FC<LinearProgressWithLabelProps> = ({
     labelText = "",
     value = 0,
@@ -27,10 +37,10 @@ const LinearProgressWithLabel: React.FC<LinearProgressWithLabelProps> = ({
 };
 
 /**
- * PredictionsOutput component for showing a current highest predicitons.
+ * PredictionsOutput component for rendering the predictions output of the model.
  *
- * @param props - The component props.
- * @returns The rendered WebcamOutput component.
+ * @returns
+ * The PredictionsOutput component.
  */
 const PredictionsOutput = ({}) => {
     // The full component

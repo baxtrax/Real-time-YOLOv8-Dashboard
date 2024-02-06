@@ -1,5 +1,6 @@
 import { AspectRatio, Card } from "@mui/joy";
 import NoPhotographyIcon from "@mui/icons-material/NoPhotography";
+
 /**
  * WebcamOutput component for showing a webcam stream.
  *

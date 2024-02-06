@@ -2,7 +2,7 @@ import { AspectRatio, Stack, Typography, Card, IconButton } from "@mui/joy";
 import QuestionMark from "@mui/icons-material/QuestionMark";
 
 /**
- * The props for the SquareCardOutput component. For ease of type checking
+ * SquareCardOutput component props
  */
 interface SquareCardOutputProps {
     topLabelText?: string;
@@ -10,19 +10,28 @@ interface SquareCardOutputProps {
     bottomLabelText?: string;
     cardWidth?: string;
 }
+
 /**
  * SquareCardOutput component for showing information in a small square display.
  * Has a top label, middle label, and bottom label. Middle label is always
  * displayed. Top and bottom labels are optional and can be left blank.
  *
- * @param props - The component props.
- * @returns The rendered SquareCardOutput component.
+ * @param topLabelText
+ * (OPTIONAL) The label text for the top of the card.
+ * @param middleLabelText
+ * (OPTIONAL) The label text for the middle of the card.
+ * @param bottomLabelText
+ * (OPTIONAL) The label text for the bottom of the card.
+ * @param cardWidth
+ * (OPTIONAL) The width of the card.
+ *
+ * @returns
+ * The SquareCardOutput component.
  */
 const SquareCardOutput: React.FC<SquareCardOutputProps> = ({
     topLabelText = "",
     middleLabelText = "placeholder",
     bottomLabelText = "",
-    cardWidth = 170,
 }) => {
     // Top label of the card
     const topLabel = (
