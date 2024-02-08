@@ -1,21 +1,19 @@
-import SwitchInput from "@/components/input/switch";
-import BasePanel from "@/components/panel/base";
-import SelectInput from "@/components/input/selector";
 import { Stack } from "@mui/joy";
-import SliderInput from "../input/slider";
+
+import SelectInput from "@components/input/selector";
+import SliderInput from "@components/input/slider";
 
 /**
- * TrackingSettingsPanel component which displays inputs for changing the model
- * settings.
+ * TrackingSettingsPanel component for rendering the tracking settings panel.
+ * It contains the tracking method, tail length, and tail thickness.
  *
- * @param props - The component props.
- * @returns The rendered TrackingSettingsPanel component.
+ * @returns
+ * The TrackingSettingsPanel component.
  */
 const TrackingSettingsPanel = ({}) => {
     // The full component
     const fullComponent = (
         <Stack spacing={2}>
-            {/* Which tracking method to utilize*/}
             <SelectInput
                 labelText="Tracking Method"
                 selectPlaceholder="Choose a method..."

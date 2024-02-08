@@ -1,58 +1,62 @@
 "use client";
 
 import React, { ReactNode } from "react";
-import { Card, Typography, Accordion } from "@mui/joy";
 
-import AccordionDetails, {
-  accordionDetailsClasses,
-} from "@mui/joy/AccordionDetails";
-import AccordionSummary, {
-  accordionSummaryClasses,
-} from "@mui/joy/AccordionSummary";
-
+import { Card, Typography } from "@mui/joy";
 import { SxProps } from "@mui/material";
 import { DefaultVariantProp } from "@mui/joy/styles/types";
 
 /**
- * The props for the BasePanel component. For ease of type checking
+ * BasePanel component props
  */
 interface BasePanelProps {
-  labelText?: string;
-  variant?: DefaultVariantProp;
-  minWidth?: number;
-  sx?: SxProps;
-  children: ReactNode;
+    labelText?: string;
+    variant?: DefaultVariantProp;
+    minWidth?: number;
+    sx?: SxProps;
+    children: ReactNode;
 }
 
 /**
- * BasePanel component for a basic panel with a title and children.
+ * BasePanel component for rendering a base panel with a label and children.
  *
- * @param props - The component props.
- * @returns The rendered BasePanel component.
+ * @param labelText
+ * (OPTIONAL) The label text for the base panel.
+ * @param variant
+ * (OPTIONAL) The variant of the card internal to the base panel.
+ * @param minWidth
+ * (OPTIONAL) The min-width of the base panel.
+ * @param sx
+ * (OPTIONAL) The style props of the card internal to the base panel.
+ * @param children
+ * The children to include inside the base panel.
+ *
+ * @returns
+ * The BasePanel component.
  */
 const BasePanel: React.FC<BasePanelProps> = ({
-  labelText = "",
-  variant = "outlined",
-  minWidth = 100,
-  sx = {},
-  children,
+    labelText = "",
+    variant = "outlined",
+    minWidth = 100,
+    sx = {},
+    children,
 }) => {
-  // Override min-width of base panel
-  sx = {
-    ...sx,
-    minWidth: { minWidth },
-  };
+    // Override min-width of base panel
+    sx = {
+        ...sx,
+        minWidth: { minWidth },
+    };
 
-  // The full component
-  const fullComponent = (
-    <Card variant={variant} sx={sx}>
-      {/* Overall Title */}
-      {labelText != "" && <Typography level="h2">{labelText}</Typography>}
-      {children}
-    </Card>
-  );
+    // The full component
+    const fullComponent = (
+        <Card variant={variant} sx={sx}>
+            {/* Overall Title */}
+            {labelText != "" && <Typography level="h2">{labelText}</Typography>}
+            {children}
+        </Card>
+    );
 
-  return fullComponent;
+    return fullComponent;
 };
 
 export default BasePanel;

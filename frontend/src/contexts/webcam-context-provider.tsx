@@ -38,6 +38,7 @@ const WebcamContextProvider: React.FC<ProviderProps> = ({ children }) => {
     // States
     const [devices, setDevices] = useState<VideoDevice[]>([]);
     const [videoStream, setVideoStream] = useState<MediaStream | null>(null);
+    const [frameInterval, setFrameInterval] = useState<number | null>(null);
 
     // Contexts
     const { socketRef } = useSocketContext();
@@ -60,9 +61,63 @@ const WebcamContextProvider: React.FC<ProviderProps> = ({ children }) => {
         });
     };
 
+    const sendFrame = async (stream: MediaStream) => {
+        // @TODO, migrate away from ImageCapture, not support in all browsers
+        const imageCapture = new ImageCapture(stream.getVideoTracks()[0]);
+
+        try {
+            const bitmap = await imageCapture.grabFrame();
+
+            // Create a canvas to draw the ImageBitmap
+            const canvas = document.createElement("canvas");
+            canvas.width = bitmap.width;
+            canvas.height = bitmap.height;
+
+            // Use ImageBitmapRenderingContext to draw the ImageBitmap
+            const context = canvas.getContext("bitmaprenderer");
+            if (context) {
+                context.transferFromImageBitmap(bitmap);
+
+                // Convert canvas content to Blob
+                canvas.toBlob((blob) => {
+                    // Send the encoded data to the WebSocket as a Blob
+                    if (blob) {
+                        console.log("Sending frame");
+                        socketRef.current?.emit("frame", blob);
+                    }
+                    // requestAnimationFrame(sendFrame);
+                }, "image/jpeg");
+            }
+        } catch (error) {
+            console.error("Error grabbing frame:", error);
+        }
+    };
+
+    const startSendingFrames = (stream: MediaStream, interval: number) => {
+        const intervalId = setInterval(() => {
+            sendFrame(stream);
+        }, interval);
+        setFrameInterval(Number(intervalId));
+    };
+
+    const stopSendingFrames = () => {
+        if (frameInterval !== null) {
+            clearInterval(frameInterval);
+            setFrameInterval(null);
+        }
+    };
+
     // @TODO, add connection status tracking & logic
     const updateSource = (newValue: VideoDevice) => {
         console.log("Source", newValue);
+
+        // Cleanup
+        if (videoStream) {
+            console.log("Stopping video stream");
+            videoStream.getTracks().forEach((track) => track.stop());
+        }
+
+        stopSendingFrames();
 
         // Get the new video stream
         navigator.mediaDevices
@@ -71,41 +126,7 @@ const WebcamContextProvider: React.FC<ProviderProps> = ({ children }) => {
                 console.log("Got video stream: ", stream);
                 setVideoStream(stream);
 
-                const sendFrame = async () => {
-                    // @TODO, migrate away from ImageCapture, not support in all browsers
-                    const imageCapture = new ImageCapture(
-                        stream.getVideoTracks()[0]
-                    );
-
-                    try {
-                        const bitmap = await imageCapture.grabFrame();
-
-                        // Create a canvas to draw the ImageBitmap
-                        const canvas = document.createElement("canvas");
-                        canvas.width = bitmap.width;
-                        canvas.height = bitmap.height;
-
-                        // Use ImageBitmapRenderingContext to draw the ImageBitmap
-                        const context = canvas.getContext("bitmaprenderer");
-                        if (context) {
-                            context.transferFromImageBitmap(bitmap);
-
-                            // Convert canvas content to Blob
-                            canvas.toBlob((blob) => {
-                                // Send the encoded data to the WebSocket as a Blob
-                                if (blob) {
-                                    console.log("Sending frame");
-                                    socketRef.current?.emit("frame", blob);
-                                }
-                                // requestAnimationFrame(sendFrame);
-                            }, "image/jpeg");
-                        }
-                    } catch (error) {
-                        console.error("Error grabbing frame:", error);
-                    }
-                };
-
-                sendFrame();
+                startSendingFrames(stream, 100);
             })
             .catch((error) => {
                 console.error("Error getting user media:", error);
@@ -229,6 +250,15 @@ const WebcamContextProvider: React.FC<ProviderProps> = ({ children }) => {
     //             console.error("Error getting user media:", error);
     //         });
     // };
+
+    // Kill strems and connections on unmount
+    useEffect(() => {
+        stopSendingFrames();
+
+        if (videoStream) {
+            videoStream.getTracks().forEach((track) => track.stop());
+        }
+    }, []);
 
     // Passable context values
     const contextValues = {

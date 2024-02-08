@@ -1,5 +1,5 @@
 import * as React from "react";
-import ThemeRegistry from "@/components/ThemeRegistry/ThemeRegistry";
+import ThemeRegistry from "@components/ThemeRegistry/ThemeRegistry";
 
 export const metadata = {
     title: "YOLOv8 Dashboard",

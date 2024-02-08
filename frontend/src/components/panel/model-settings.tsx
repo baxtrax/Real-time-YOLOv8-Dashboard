@@ -1,18 +1,19 @@
 "use client";
-import SelectInput from "@/components/input/selector";
-import SliderInput from "@/components/input/slider";
-import BasePanel from "@/components/panel/base";
-import NumberInput from "@/components/input/number";
-import { useModelSettingsContext } from "@/contexts/model-settings-context-provider";
-import { useWebcamContext } from "@/contexts/webcam-context-provider";
 import { useEffect } from "react";
 
+import { useModelSettingsContext } from "@/contexts/model-settings-context-provider";
+import { useWebcamContext } from "@/contexts/webcam-context-provider";
+import SelectInput from "@components/input/selector";
+import SliderInput from "@components/input/slider";
+import BasePanel from "@components/panel/base";
+
 /**
- * ModelSettingsPanel component which displays inputs for changing the model
- * settings.
+ * ModelSettingsPanel component for rendering the model settings panel. It
+ * contains the source for object detection, model size for object detection,
+ * confidence filter, IOU filter, and class filter.
  *
- * @param props - The component props.
- * @returns The rendered ModelSettingsPanel component.
+ * @returns
+ * The ModelSettingsPanel component.
  */
 const ModelSettingsPanel = ({}) => {
     const {
@@ -35,8 +36,8 @@ const ModelSettingsPanel = ({}) => {
         getVideoDevices();
     }, []);
 
-    // FUNCTIONS
-
+    // Handlers
+    // A majority of the handlers call the update functions from the context
     const handelSourceSelect = (
         event: React.SyntheticEvent | null,
         newValue: string | string[] | null
@@ -56,7 +57,6 @@ const ModelSettingsPanel = ({}) => {
         event: React.SyntheticEvent | null,
         newValue: string | string[] | null
     ) => {
-        // Type guard
         if (typeof newValue === "string") {
             updateModelSize(MODEL_SIZE[newValue as keyof typeof MODEL_SIZE]);
         }
@@ -66,7 +66,6 @@ const ModelSettingsPanel = ({}) => {
         event: Event | React.SyntheticEvent,
         newValue: number | number[]
     ) => {
-        // Type guard
         if (typeof newValue === "number") {
             updateConf(newValue);
         }
@@ -75,7 +74,6 @@ const ModelSettingsPanel = ({}) => {
         event: Event | React.SyntheticEvent,
         newValue: number | number[]
     ) => {
-        // Type guard
         if (typeof newValue === "number") {
             updateIOU(newValue);
         }
@@ -85,7 +83,6 @@ const ModelSettingsPanel = ({}) => {
         event: React.SyntheticEvent | null,
         newValue: string | string[] | null
     ) => {
-        // Type guard
         if (newValue instanceof Array) {
             updateClassFilter(newValue);
         }
@@ -125,7 +122,6 @@ const ModelSettingsPanel = ({}) => {
             minWidth={400}
             sx={{ flexGrow: 1, flexShrink: 1, flexBasis: 0 }}
         >
-            {/* Source for object detection selector */}
             <SelectInput
                 labelText="Source"
                 selectPlaceholder="Choose a source..."
@@ -133,7 +129,6 @@ const ModelSettingsPanel = ({}) => {
                 onChangeFn={handelSourceSelect}
             />
 
-            {/* YOLO Model size for object detection selector */}
             <SelectInput
                 labelText="Model Size"
                 selectPlaceholder="Choose a model..."

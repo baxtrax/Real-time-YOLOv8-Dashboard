@@ -1,7 +1,7 @@
 import { Stack } from "@mui/joy";
 import WebcamOutput from "@components/output/webcam";
 import BasePanel from "@components/panel/base";
-import ThemeToggle from "../input/themetoggle";
+import ThemeToggle from "@components/input/themetoggle";
 
 /**
  * WebcamPanel component which displays big metrics.

@@ -1,12 +1,15 @@
 import { Stack } from "@mui/joy";
+
 import SquareCardOutput from "@components/output/square-card";
 import BasePanel from "@components/panel/base";
 
 /**
- * InformationPanel component which displays big metrics.
+ * InformationPanel component for rendering the information panel.
+ * It contains the overall speed, inference speed, postprocess speed, and
+ * objects detected.
  *
- * @param props - The component props.
- * @returns The rendered InformationPanel component.
+ * @returns
+ * The InformationPanel component.
  */
 const InformationPanel = ({}) => {
     // The full component

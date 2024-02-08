@@ -1,13 +1,13 @@
-import SwitchInput from "@/components/input/switch";
-import BasePanel from "@/components/panel/base";
 import { Stack } from "@mui/joy";
 
+import SwitchInput from "@components/input/switch";
+import BasePanel from "@components/panel/base";
+
 /**
- * FeatureSettingsPanel component which displays inputs for changing the model
- * settings.
+ * FeatureSettingsPanel component for rendering the feature settings panel.
  *
- * @param props - The component props.
- * @returns The rendered FeatureSettingsPanel component.
+ * @returns
+ * The FeatureSettingsPanel component.
  */
 const FeatureSettingsPanel = ({}) => {
     // The full component

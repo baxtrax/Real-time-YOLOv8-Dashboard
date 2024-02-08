@@ -2,12 +2,12 @@ import * as React from "react";
 
 import { Stack, Sheet } from "@mui/joy";
 
-import ModelSettingsPanel from "@/components/panel/model-settings";
-import InformationPanel from "@/components/panel/information";
-import FeatureSettingsPanel from "@/components/panel/feature-settings";
-import FeatureSpecificSettingsPanel from "@/components/panel/feature-specific-settings";
-import PredictionsPanel from "@/components/panel/predictions";
-import WebcamPanel from "@/components/panel/webcam";
+import ModelSettingsPanel from "@components/panel/model-settings";
+import InformationPanel from "@components/panel/information";
+import FeatureSettingsPanel from "@components/panel/feature-settings";
+import FeatureSpecificSettingsPanel from "@components/panel/feature-specific-settings";
+import PredictionsPanel from "@components/panel/predictions";
+import WebcamPanel from "@components/panel/webcam";
 
 import { ModelSettingsContextProvider } from "@/contexts/model-settings-context-provider";
 import { WebcamContextProvider } from "@/contexts/webcam-context-provider";

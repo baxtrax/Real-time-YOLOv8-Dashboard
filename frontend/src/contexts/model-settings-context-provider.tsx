@@ -28,8 +28,8 @@ enum MODEL_SIZE_FLOPS {
     X = "257.8 B",
 }
 
+// The COCO classes
 type COCO_CLASSES = Record<string, string>;
-
 let COCO_CLASSES: COCO_CLASSES = {
     0: "Person",
     1: "Bicycle",

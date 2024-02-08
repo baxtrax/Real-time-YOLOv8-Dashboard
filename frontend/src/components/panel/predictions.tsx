@@ -1,11 +1,11 @@
 import BasePanel from "@components/panel/base";
-import PredictionsOutput from "../output/predictions";
+import PredictionsOutput from "@components/output/predictions";
 
 /**
- * PredictionsPanel component which displays highest top-5 predictions.
+ * PredictionsPanel component for rendering the predictions panel.
  *
- * @param props - The component props.
- * @returns The rendered PredictionsPanel component.
+ * @returns
+ * The PredictionsPanel component.
  */
 const PredictionsPanel = ({}) => {
     // The full component

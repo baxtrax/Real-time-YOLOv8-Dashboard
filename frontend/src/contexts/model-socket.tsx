@@ -72,6 +72,7 @@ const SocketContextProvider: React.FC<ProviderProps> = ({ children }) => {
 
         // Clean up event listeners when component unmounts
         return () => {
+            socketRef.current!.disconnect();
             uninitSocket();
         };
     }, []);
