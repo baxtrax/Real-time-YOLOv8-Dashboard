@@ -21,11 +21,9 @@ def handle_frame(blob):
     # Encode the modified frame as binary
     _, frame_encoded = cv2.imencode('.jpeg', frame)
     modified_blob = frame_encoded.tobytes()
-    print(len(modified_blob))
 
     # Send back the processed data if required
     socketio.emit('processed_frame', modified_blob)
-    print('Frame processed')
 
 
 if __name__ == '__main__':

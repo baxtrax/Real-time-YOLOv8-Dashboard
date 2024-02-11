@@ -41,11 +41,9 @@ const Home = ({}) => {
                 useFlexGap
             >
                 <FeatureSpecificSettingsPanel />
-                <WebcamContextProvider>
-                    <ModelSettingsContextProvider>
-                        <ModelSettingsPanel />
-                    </ModelSettingsContextProvider>
-                </WebcamContextProvider>
+                <ModelSettingsContextProvider>
+                    <ModelSettingsPanel />
+                </ModelSettingsContextProvider>
             </Stack>
         </Stack>
     );
@@ -81,17 +79,19 @@ const Home = ({}) => {
         >
             <SnackbarContextProvider>
                 <SocketContextProvider>
-                    <Stack
-                        spacing={2}
-                        direction="row"
-                        width="100%"
-                        margin="1rem"
-                        flexWrap="wrap"
-                        useFlexGap
-                    >
-                        {leftPanel}
-                        {rightPanel}
-                    </Stack>
+                    <WebcamContextProvider>
+                        <Stack
+                            spacing={2}
+                            direction="row"
+                            width="100%"
+                            margin="1rem"
+                            flexWrap="wrap"
+                            useFlexGap
+                        >
+                            {leftPanel}
+                            {rightPanel}
+                        </Stack>
+                    </WebcamContextProvider>
                 </SocketContextProvider>
             </SnackbarContextProvider>
         </Sheet>

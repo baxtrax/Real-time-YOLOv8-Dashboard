@@ -3,38 +3,37 @@
 import React, { useRef, useEffect } from "react";
 
 import { AspectRatio, Card } from "@mui/joy";
-import NoPhotographyIcon from "@mui/icons-material/NoPhotography";
 
 import { useWebcamContext } from "@/contexts/webcam-context-provider";
 
-interface ImageComponentProps {
-    imageData: ImageData;
-}
+const ImageComponent = () => {
+    const { devices, getVideoDevices, updateSource, frameURL } =
+        useWebcamContext();
 
-const ImageComponent: React.FC<ImageComponentProps> = ({ imageData }) => {
-    const canvasRef = useRef<HTMLCanvasElement | null>(null);
+    const imageRef = useRef<HTMLImageElement | null>(null);
 
     useEffect(() => {
-        const canvas = canvasRef.current;
-
-        if (!canvas) {
-            return;
-        }
-
-        const ctx = canvas.getContext("2d");
+        const image = imageRef.current;
+        let lastFrameURL: string | null = null;
 
         const renderFrame = () => {
-            if (imageData) {
-                ctx!.putImageData(imageData, 0, 0);
+            if (image && frameURL !== null) {
+                if (frameURL !== lastFrameURL) {
+                    image.src = frameURL;
+                    if (lastFrameURL !== null) {
+                        URL.revokeObjectURL(lastFrameURL);
+                    }
+                    lastFrameURL = frameURL;
+                }
             }
 
             requestAnimationFrame(renderFrame);
         };
 
         renderFrame(); // Initial render
-    }, [imageData]);
+    }, [frameURL]);
 
-    return <canvas ref={canvasRef} width={640} height={480} />;
+    return <img ref={imageRef} alt="Processed Frame" />;
 };
 
 /**
@@ -44,21 +43,29 @@ const ImageComponent: React.FC<ImageComponentProps> = ({ imageData }) => {
  * @returns The rendered WebcamOutput component.
  */
 const WebcamOutput = ({}) => {
-    const { frame } = useWebcamContext();
-
     // The full component
     const fullComponent = (
         <Card variant="soft" sx={{ width: "100%" }}>
             <AspectRatio ratio="16/9">
-                {frame !== null ? (
-                    <ImageComponent imageData={frame} />
+                <ImageComponent />
+                {/* {frameURL !== null ? (
+                    <ImageComponent />
                 ) : (
                     <div>
                         <NoPhotographyIcon
                             sx={{ fontSize: "3rem", opacity: 0.2 }}
                         />
                     </div>
-                )}
+                )} */}
+                {/* {frameURL !== null ? (
+                    <ImageComponent />
+                ) : (
+                    <div>
+                        <NoPhotographyIcon
+                            sx={{ fontSize: "3rem", opacity: 0.2 }}
+                        />
+                    </div>
+                )} */}
             </AspectRatio>
         </Card>
     );

@@ -8,6 +8,7 @@ import React, {
 } from "react";
 
 import { useSocketContext } from "@/contexts/model-socket";
+import { ContactlessOutlined } from "@mui/icons-material";
 
 // The props for the provider
 interface ProviderProps {
@@ -27,7 +28,7 @@ type ContextType = {
     devices: VideoDevice[];
     getVideoDevices: () => void;
     updateSource: (newValue: VideoDevice) => void;
-    frame: ImageData | null;
+    frameURL: string | null;
 };
 
 // Cheaty way to bypass default value. I will only be using this context in the provider.
@@ -40,7 +41,7 @@ const WebcamContextProvider: React.FC<ProviderProps> = ({ children }) => {
     const [devices, setDevices] = useState<VideoDevice[]>([]);
     const [videoStream, setVideoStream] = useState<MediaStream | null>(null);
     const [frameInterval, setFrameInterval] = useState<number | null>(null);
-    const [frame, setFrame] = useState<ImageData | null>(null);
+    const [frameURL, setFrameURL] = useState<string | null>(null);
 
     // Contexts
     const { socketRef, onProcessedFrame } = useSocketContext();
@@ -63,50 +64,59 @@ const WebcamContextProvider: React.FC<ProviderProps> = ({ children }) => {
         });
     };
 
-    const sendFrame = async (stream: MediaStream) => {
-        // @TODO, migrate away from ImageCapture, not support in all browsers
-        const imageCapture = new ImageCapture(stream.getVideoTracks()[0]);
+    const sendFrame = (stream: MediaStream) => {
+        const videoTrack = stream.getVideoTracks()[0];
 
-        try {
-            const bitmap = await imageCapture.grabFrame();
+        if (
+            !videoTrack ||
+            !videoTrack.readyState ||
+            videoTrack.readyState === "ended"
+        ) {
+            console.error("Video track is not in a valid state.");
+            return;
+        }
 
-            // Create a canvas to draw the ImageBitmap
+        const videoElement = document.createElement("video");
+        videoElement.srcObject = new MediaStream([videoTrack]);
+
+        videoElement.onloadedmetadata = () => {
             const canvas = document.createElement("canvas");
-            canvas.width = bitmap.width;
-            canvas.height = bitmap.height;
+            canvas.width = videoElement.videoWidth;
+            canvas.height = videoElement.videoHeight;
 
-            // Use ImageBitmapRenderingContext to draw the ImageBitmap
-            const context = canvas.getContext("bitmaprenderer");
+            const context = canvas.getContext("2d");
             if (context) {
-                context.transferFromImageBitmap(bitmap);
+                context.drawImage(
+                    videoElement,
+                    0,
+                    0,
+                    canvas.width,
+                    canvas.height
+                );
 
                 // Convert canvas content to Blob
                 canvas.toBlob((blob) => {
                     // Send the encoded data to the WebSocket as a Blob
                     if (blob) {
-                        console.log("Sending frame");
                         socketRef.current?.emit("frame", blob);
                     }
-                    // requestAnimationFrame(sendFrame);
                 }, "image/jpeg");
             }
-        } catch (error) {
-            console.error("Error grabbing frame:", error);
-        }
-    };
 
-    const startSendingFrames = (stream: MediaStream, interval: number) => {
-        const intervalId = setInterval(() => {
-            if (stream && socketRef.current?.connected) sendFrame(stream);
-        }, interval);
-        setFrameInterval(Number(intervalId));
-    };
+            // Cleanup
+            videoElement.srcObject = null;
 
-    const stopSendingFrames = () => {
-        if (frameInterval !== null) {
-            clearInterval(frameInterval);
-            setFrameInterval(null);
-        }
+            // Request the next animation frame
+            requestAnimationFrame(() => sendFrame(stream));
+        };
+
+        videoElement.onerror = (error) => {
+            console.error("Error loading video element:", error);
+        };
+
+        videoElement.play().catch((error) => {
+            console.error("Error playing video element:", error);
+        });
     };
 
     // @TODO, add connection status tracking & logic
@@ -119,8 +129,6 @@ const WebcamContextProvider: React.FC<ProviderProps> = ({ children }) => {
             videoStream.getTracks().forEach((track) => track.stop());
         }
 
-        stopSendingFrames();
-
         // Get the new video stream
         navigator.mediaDevices
             .getUserMedia({ video: { deviceId: newValue.deviceID } })
@@ -128,7 +136,8 @@ const WebcamContextProvider: React.FC<ProviderProps> = ({ children }) => {
                 console.log("Got video stream: ", stream);
                 setVideoStream(stream);
 
-                startSendingFrames(stream, 1000);
+                // Start sending frames continuously
+                requestAnimationFrame(() => sendFrame(stream));
             })
             .catch((error) => {
                 console.error("Error getting user media:", error);
@@ -138,14 +147,16 @@ const WebcamContextProvider: React.FC<ProviderProps> = ({ children }) => {
     // Kill strems and connections on unmount
     useEffect(() => {
         // Custome logic on callback
-        onProcessedFrame.current = (data: Uint8ClampedArray) => {
-            // Pad data tobe a multiple of
-            // setFrame(new ImageData(data, 640, 480));
+        onProcessedFrame.current = (data) => {
+            const imageBlob = new Blob([data], { type: "image/jpeg" });
+
+            // Create Object URL for the Blob
+            const imageUrl = URL.createObjectURL(imageBlob);
+            setFrameURL(imageUrl);
         };
 
         return () => {
             console.log("Cleaning up webcam connections and logic");
-            stopSendingFrames();
 
             if (videoStream) {
                 videoStream.getTracks().forEach((track) => track.stop());
@@ -158,7 +169,7 @@ const WebcamContextProvider: React.FC<ProviderProps> = ({ children }) => {
         devices,
         getVideoDevices,
         updateSource,
-        frame,
+        frameURL,
     };
 
     // The full provider w/ context values
