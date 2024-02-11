@@ -27,6 +27,7 @@ type ContextType = {
     devices: VideoDevice[];
     getVideoDevices: () => void;
     updateSource: (newValue: VideoDevice) => void;
+    frame: ImageData | null;
 };
 
 // Cheaty way to bypass default value. I will only be using this context in the provider.
@@ -39,9 +40,10 @@ const WebcamContextProvider: React.FC<ProviderProps> = ({ children }) => {
     const [devices, setDevices] = useState<VideoDevice[]>([]);
     const [videoStream, setVideoStream] = useState<MediaStream | null>(null);
     const [frameInterval, setFrameInterval] = useState<number | null>(null);
+    const [frame, setFrame] = useState<ImageData | null>(null);
 
     // Contexts
-    const { socketRef } = useSocketContext();
+    const { socketRef, onProcessedFrame } = useSocketContext();
 
     // Functions
     const getVideoDevices = () => {
@@ -95,7 +97,7 @@ const WebcamContextProvider: React.FC<ProviderProps> = ({ children }) => {
 
     const startSendingFrames = (stream: MediaStream, interval: number) => {
         const intervalId = setInterval(() => {
-            sendFrame(stream);
+            if (stream && socketRef.current?.connected) sendFrame(stream);
         }, interval);
         setFrameInterval(Number(intervalId));
     };
@@ -126,138 +128,29 @@ const WebcamContextProvider: React.FC<ProviderProps> = ({ children }) => {
                 console.log("Got video stream: ", stream);
                 setVideoStream(stream);
 
-                startSendingFrames(stream, 100);
+                startSendingFrames(stream, 1000);
             })
             .catch((error) => {
                 console.error("Error getting user media:", error);
             });
     };
 
-    // // Connect if not connected
-    // if (!socket.connected) {
-    //     socket.connect();
-    // }
-
-    //     // Check if the socket.connect worked
-    //     if (socket.connected) {
-    //         console.log("Connected to server");
-    //     } else {
-    //         displayErrorSnackbar("Failed to connect to server");
-    //     }
-
-    //     // Connect to websocket server via socket-io on port 5001
-    //     // Close the existing WebSocket connection
-    // };
-
-    // // Connection code
-    // const onConnect = () => {
-    //     setIsConnected(true);
-    // };
-
-    // const onDisconnect = () => {
-    //     setIsConnected(false);
-    // };
-
-    // useEffect(() => {
-    //     socket.on("connect", onConnect);
-    //     socket.on("disconnect", onDisconnect);
-
-    //     return () => {
-    //         socket.off("connect", onConnect);
-    //         socket.off("disconnect", onDisconnect);
-    //     };
-    // }, []);
-
-    // // @TODO, add connection status tracking & logic
-    // const updateSource = (newValue: VideoDevice) => {
-    //     console.log("Source", newValue);
-
-    //     // Stop the current stream if it exists
-    //     if (videoStream) {
-    //         console.log("Stopping video stream");
-    //         videoStream.getTracks().forEach((track) => track.stop());
-    //     }
-
-    //     // Close the existing WebSocket connection
-    //     if (websocket) {
-    //         console.log("Closing WebSocket connection");
-    //         websocket.close();
-    //     }
-
-    //     // Get the new video stream
-    //     navigator.mediaDevices
-    //         .getUserMedia({ video: { deviceId: newValue.deviceID } })
-    //         .then((stream) => {
-    //             console.log("Got video stream: ", stream);
-    //             setVideoStream(stream);
-
-    //             // Create a new WebSocket connection
-    //             console.log("Creating WebSocket connection");
-    //             const ws = new WebSocket("ws://localhost:5001");
-    //             setWebsocket(ws);
-    //             console.log("WebSocket connection created");
-
-    //             // Handle the WebSocket connection events
-    //             ws.onopen = () => {
-    //                 console.log("WebSocket connected");
-    //             };
-
-    //             ws.onclose = () => {
-    //                 console.log("WebSocket disconnected");
-    //             };
-
-    //             ws.onerror = (error) => {
-    //                 displayErrorSnackbar("Connection error to model");
-    //                 console.error("WebSocket error:", error);
-    //             };
-
-    //             const sendFrame = async () => {
-    //                 // @TODO, migrate away from ImageCapture, not support in all browsers
-    //                 const imageCapture = new ImageCapture(
-    //                     stream.getVideoTracks()[0]
-    //                 );
-
-    //                 try {
-    //                     const bitmap = await imageCapture.grabFrame();
-
-    //                     // Create a canvas to draw the ImageBitmap
-    //                     const canvas = document.createElement("canvas");
-    //                     canvas.width = bitmap.width;
-    //                     canvas.height = bitmap.height;
-
-    //                     // Use ImageBitmapRenderingContext to draw the ImageBitmap
-    //                     const context = canvas.getContext("bitmaprenderer");
-    //                     if (context) {
-    //                         context.transferFromImageBitmap(bitmap);
-
-    //                         // Convert canvas content to Blob
-    //                         canvas.toBlob((blob) => {
-    //                             // Send the encoded data to the WebSocket as a Blob
-    //                             if (blob) {
-    //                                 ws.send(blob);
-    //                             }
-    //                             requestAnimationFrame(sendFrame);
-    //                         }, "image/jpeg");
-    //                     }
-    //                 } catch (error) {
-    //                     console.error("Error grabbing frame:", error);
-    //                 }
-    //             };
-
-    //             sendFrame();
-    //         })
-    //         .catch((error) => {
-    //             console.error("Error getting user media:", error);
-    //         });
-    // };
-
     // Kill strems and connections on unmount
     useEffect(() => {
-        stopSendingFrames();
+        // Custome logic on callback
+        onProcessedFrame.current = (data: Uint8ClampedArray) => {
+            // Pad data tobe a multiple of
+            // setFrame(new ImageData(data, 640, 480));
+        };
 
-        if (videoStream) {
-            videoStream.getTracks().forEach((track) => track.stop());
-        }
+        return () => {
+            console.log("Cleaning up webcam connections and logic");
+            stopSendingFrames();
+
+            if (videoStream) {
+                videoStream.getTracks().forEach((track) => track.stop());
+            }
+        };
     }, []);
 
     // Passable context values
@@ -265,6 +158,7 @@ const WebcamContextProvider: React.FC<ProviderProps> = ({ children }) => {
         devices,
         getVideoDevices,
         updateSource,
+        frame,
     };
 
     // The full provider w/ context values

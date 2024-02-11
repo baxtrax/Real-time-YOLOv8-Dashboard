@@ -1,4 +1,5 @@
 import { Stack } from "@mui/joy";
+
 import WebcamOutput from "@components/output/webcam";
 import BasePanel from "@components/panel/base";
 import ThemeToggle from "@components/input/themetoggle";

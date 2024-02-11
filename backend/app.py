@@ -1,4 +1,4 @@
-from flask import Flask, render_template
+from flask import Flask
 from flask_socketio import SocketIO
 from flask_cors import CORS
 import cv2
@@ -19,11 +19,13 @@ def handle_frame(blob):
     cv2.circle(frame, (100, 100), 50, (0, 255, 0), 2)
 
     # Encode the modified frame as binary
-    _, frame_encoded = cv2.imencode('.jpg', frame)
+    _, frame_encoded = cv2.imencode('.jpeg', frame)
     modified_blob = frame_encoded.tobytes()
+    print(len(modified_blob))
 
     # Send back the processed data if required
     socketio.emit('processed_frame', modified_blob)
+    print('Frame processed')
 
 
 if __name__ == '__main__':

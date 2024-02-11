@@ -1,6 +1,8 @@
 "use client";
 import React, { ReactNode, useState, useContext, createContext } from "react";
 
+import { useSnackbarContext } from "@/contexts/snackbar-context-provider";
+
 // The model sizes
 enum MODEL_SIZE {
     N = "Nano",
@@ -144,11 +146,14 @@ const ModelSettingsContextProvider: React.FC<ProviderProps> = ({
     const [iou, setIOU] = useState(70);
     const [classes, setClasses] = useState<string[]>([]);
 
+    const { displayErrorSnackbar } = useSnackbarContext();
+
     // Update functions
 
     const updateModelSize = (newValue: MODEL_SIZE) => {
         console.log("Model Size", newValue);
         setModelSize(newValue);
+        displayErrorSnackbar("Model Size: " + newValue);
     };
 
     const updateConf = (newValue: number) => {

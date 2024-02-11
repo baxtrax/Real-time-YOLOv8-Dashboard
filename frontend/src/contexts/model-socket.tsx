@@ -18,6 +18,7 @@ interface ProviderProps {
 // The props for the context
 type ContextType = {
     socketRef: React.MutableRefObject<Socket | null | undefined>;
+    onProcessedFrame: React.MutableRefObject<((data: any) => void) | null>;
 };
 
 // Cheaty way to bypass default value. I will only be using this context in the provider.
@@ -29,10 +30,12 @@ const SocketContextProvider: React.FC<ProviderProps> = ({ children }) => {
     // States
     const { displayErrorSnackbar } = useSnackbarContext();
     const socketRef = useRef<Socket | null>(); // Ref to track socket object
+    const onProcessedFrame = useRef<((data: any) => void) | null>(null); // Ref to track callback function
 
     // Passable context values
     const contextValues = {
         socketRef,
+        onProcessedFrame,
     };
 
     const initSocket = () => {
@@ -50,6 +53,13 @@ const SocketContextProvider: React.FC<ProviderProps> = ({ children }) => {
             console.error("Failed to connect to socket.io server", error);
             displayErrorSnackbar("Failed to connect to server");
         });
+
+        socketRef.current.on("processed_frame", (data: any) => {
+            // Check if the callback function is provided and call it
+            if (contextValues.onProcessedFrame.current) {
+                contextValues.onProcessedFrame.current(data);
+            }
+        });
     };
 
     const uninitSocket = () => {
@@ -58,6 +68,7 @@ const SocketContextProvider: React.FC<ProviderProps> = ({ children }) => {
             socketRef.current.off("connect");
             socketRef.current.off("disconnect");
             socketRef.current.off("connect_error");
+            socketRef.current.off("processed_frame");
             socketRef.current = null; // Reset the ref
         }
     };
