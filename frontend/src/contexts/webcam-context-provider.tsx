@@ -46,22 +46,24 @@ const WebcamContextProvider: React.FC<ProviderProps> = ({ children }) => {
     // Contexts
     const { socketRef, onProcessedFrame } = useSocketContext();
 
+    const canvas = document.createElement("canvas");
+    const context = canvas.getContext("2d");
+
     // Functions
-    const getVideoDevices = () => {
-        navigator.mediaDevices.enumerateDevices().then(function (devices) {
-            let videoDevices: VideoDevice[] = [] as VideoDevice[];
-            for (var i = 0; i < devices.length; i++) {
-                var device = devices[i];
-                if (device.kind === "videoinput") {
-                    videoDevices.push({
-                        deviceID: device.deviceId,
-                        deviceNumber: videoDevices.length,
-                        label: device.label || "Camera " + videoDevices.length,
-                    });
-                }
-            }
+    const getVideoDevices = async () => {
+        try {
+            const devices = await navigator.mediaDevices.enumerateDevices();
+            const videoDevices = devices
+                .filter((device) => device.kind === "videoinput")
+                .map((device, index) => ({
+                    deviceID: device.deviceId,
+                    deviceNumber: index,
+                    label: device.label || `Camera ${index}`,
+                }));
             setDevices(videoDevices);
-        });
+        } catch (error) {
+            console.error("Error enumerating video devices:", error);
+        }
     };
 
     const sendFrame = (stream: MediaStream) => {
@@ -80,11 +82,9 @@ const WebcamContextProvider: React.FC<ProviderProps> = ({ children }) => {
         videoElement.srcObject = new MediaStream([videoTrack]);
 
         videoElement.onloadedmetadata = () => {
-            const canvas = document.createElement("canvas");
             canvas.width = videoElement.videoWidth;
             canvas.height = videoElement.videoHeight;
 
-            const context = canvas.getContext("2d");
             if (context) {
                 context.drawImage(
                     videoElement,

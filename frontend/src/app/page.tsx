@@ -68,33 +68,35 @@ const Home = ({}) => {
      * Full component containing the left and right panels.
      */
     const fullComponent = (
-        <Sheet
-            sx={{
-                display: "flex",
-                flexFlow: "row nowrap",
-                justifyContent: "center",
-                alignItems: "center",
-                minHeight: "100vh",
-            }}
-        >
-            <SnackbarContextProvider>
-                <SocketContextProvider>
-                    <WebcamContextProvider>
-                        <Stack
-                            spacing={2}
-                            direction="row"
-                            width="100%"
-                            margin="1rem"
-                            flexWrap="wrap"
-                            useFlexGap
-                        >
-                            {leftPanel}
-                            {rightPanel}
-                        </Stack>
-                    </WebcamContextProvider>
-                </SocketContextProvider>
-            </SnackbarContextProvider>
-        </Sheet>
+        <React.StrictMode>
+            <Sheet
+                sx={{
+                    display: "flex",
+                    flexFlow: "row nowrap",
+                    justifyContent: "center",
+                    alignItems: "center",
+                    minHeight: "100vh",
+                }}
+            >
+                <SnackbarContextProvider>
+                    <SocketContextProvider>
+                        <WebcamContextProvider>
+                            <Stack
+                                spacing={2}
+                                direction="row"
+                                width="100%"
+                                margin="1rem"
+                                flexWrap="wrap"
+                                useFlexGap
+                            >
+                                {leftPanel}
+                                {rightPanel}
+                            </Stack>
+                        </WebcamContextProvider>
+                    </SocketContextProvider>
+                </SnackbarContextProvider>
+            </Sheet>
+        </React.StrictMode>
     );
     return fullComponent;
 };
