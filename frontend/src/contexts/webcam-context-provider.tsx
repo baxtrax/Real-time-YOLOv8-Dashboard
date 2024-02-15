@@ -2,6 +2,7 @@
 import React, {
     ReactNode,
     useState,
+    useRef,
     useEffect,
     useContext,
     createContext,
@@ -40,14 +41,14 @@ const WebcamContextProvider: React.FC<ProviderProps> = ({ children }) => {
     // States
     const [devices, setDevices] = useState<VideoDevice[]>([]);
     const [videoStream, setVideoStream] = useState<MediaStream | null>(null);
-    const [frameInterval, setFrameInterval] = useState<number | null>(null);
     const [frameURL, setFrameURL] = useState<string | null>(null);
+
+    const canvasRef = useRef<HTMLCanvasElement>();
+    const contextRef = useRef<CanvasRenderingContext2D>();
+    const videoRef = useRef<HTMLVideoElement>();
 
     // Contexts
     const { socketRef, onProcessedFrame } = useSocketContext();
-
-    const canvas = document.createElement("canvas");
-    const context = canvas.getContext("2d");
 
     // Functions
     const getVideoDevices = async () => {
@@ -78,43 +79,40 @@ const WebcamContextProvider: React.FC<ProviderProps> = ({ children }) => {
             return;
         }
 
-        const videoElement = document.createElement("video");
-        videoElement.srcObject = new MediaStream([videoTrack]);
+        videoRef.current!.srcObject = new MediaStream([videoTrack]);
 
-        videoElement.onloadedmetadata = () => {
-            canvas.width = videoElement.videoWidth;
-            canvas.height = videoElement.videoHeight;
+        videoRef.current!.onloadedmetadata = () => {
+            canvasRef.current!.width = videoRef.current!.videoWidth;
+            canvasRef.current!.height = videoRef.current!.videoHeight;
 
-            if (context) {
-                context.drawImage(
-                    videoElement,
-                    0,
-                    0,
-                    canvas.width,
-                    canvas.height
-                );
+            contextRef.current!.drawImage(
+                videoRef.current!,
+                0,
+                0,
+                canvasRef.current!.width,
+                canvasRef.current!.height
+            );
 
-                // Convert canvas content to Blob
-                canvas.toBlob((blob) => {
-                    // Send the encoded data to the WebSocket as a Blob
-                    if (blob) {
-                        socketRef.current?.emit("frame", blob);
-                    }
-                }, "image/jpeg");
-            }
+            // Convert canvas content to Blob
+            canvasRef.current!.toBlob((blob) => {
+                // Send the encoded data to the WebSocket as a Blob
+                if (blob) {
+                    socketRef.current?.emit("frame", blob);
+                }
+            }, "image/jpeg");
 
             // Cleanup
-            videoElement.srcObject = null;
+            videoRef.current!.srcObject = null;
 
             // Request the next animation frame
             requestAnimationFrame(() => sendFrame(stream));
         };
 
-        videoElement.onerror = (error) => {
+        videoRef.current!.onerror = (error) => {
             console.error("Error loading video element:", error);
         };
 
-        videoElement.play().catch((error) => {
+        videoRef.current!.play().catch((error) => {
             console.error("Error playing video element:", error);
         });
     };
@@ -154,6 +152,10 @@ const WebcamContextProvider: React.FC<ProviderProps> = ({ children }) => {
             const imageUrl = URL.createObjectURL(imageBlob);
             setFrameURL(imageUrl);
         };
+
+        canvasRef.current = document.createElement("canvas");
+        contextRef.current = canvasRef.current.getContext("2d")!;
+        videoRef.current = document.createElement("video");
 
         return () => {
             console.log("Cleaning up webcam connections and logic");
