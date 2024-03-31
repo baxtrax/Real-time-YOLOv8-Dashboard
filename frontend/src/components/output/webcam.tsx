@@ -14,17 +14,10 @@ const ImageComponent = () => {
 
     useEffect(() => {
         const image = imageRef.current;
-        let lastFrameURL: string | null = null;
 
         const renderFrame = () => {
             if (image && frameURL !== null) {
-                if (frameURL !== lastFrameURL) {
-                    image.src = frameURL;
-                    if (lastFrameURL !== null) {
-                        URL.revokeObjectURL(lastFrameURL);
-                    }
-                    lastFrameURL = frameURL;
-                }
+                image.src = `data:image/png;base64,${frameURL}`;
             }
 
             requestAnimationFrame(renderFrame);

@@ -93,13 +93,9 @@ const WebcamContextProvider: React.FC<ProviderProps> = ({ children }) => {
                 canvasRef.current!.height
             );
 
-            // Convert canvas content to Blob
-            canvasRef.current!.toBlob((blob) => {
-                // Send the encoded data to the WebSocket as a Blob
-                if (blob) {
-                    socketRef.current?.emit("frame", blob);
-                }
-            }, "image/jpeg");
+            // Console log current sending framerate
+
+            socketRef.current?.emit("frame", canvasRef.current!.toDataURL());
 
             // Cleanup
             videoRef.current!.srcObject = null;
@@ -146,11 +142,7 @@ const WebcamContextProvider: React.FC<ProviderProps> = ({ children }) => {
     useEffect(() => {
         // Custome logic on callback
         onProcessedFrame.current = (data) => {
-            const imageBlob = new Blob([data], { type: "image/jpeg" });
-
-            // Create Object URL for the Blob
-            const imageUrl = URL.createObjectURL(imageBlob);
-            setFrameURL(imageUrl);
+            setFrameURL(data);
         };
 
         canvasRef.current = document.createElement("canvas");
