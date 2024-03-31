@@ -49,9 +49,9 @@ class Streamer:
 
     def emit_frame(self, frame):
         _, frame_encoded = cv2.imencode('.png', frame)
-        base64_encoded = base64.b64encode(frame_encoded)
-        base64_encoded = base64_encoded.decode('utf-8')
-        self.socket.emit('processed_frame', base64_encoded)
+        frame = frame_encoded.tobytes()
+        yield (b'--frame\r\n'
+               b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
 
     def _start_stream(self):
 
@@ -87,6 +87,30 @@ class Streamer:
         LOGGER.debug(f"(Stream Thread: {thread_name}) Releasing video stream")
         self.stream.release()
         cv2.destroyAllWindows()
+
+    def get_video_devices(self):
+        # @TODO: Limitation on device names, dependent on OS specific backend logic.
+        # Curse you cross compatibility!
+
+        # Get video devices, if failure to open device, increment index
+        # Will attempt up until 5 open failures before giving up
+        devices = {}
+        index = 0
+        failures = 0
+        while failures < 5:
+            print(index)
+
+            cap = cv2.VideoCapture(index)
+            if not cap.isOpened():
+                failures += 1
+                index += 1
+                continue
+
+            LOGGER.debug(f"Device {index}: Camera {index}")
+            devices[index] = f"Camera {index}"
+            cap.release()
+            index += 1
+        return devices
 
 
 STREAMER = Streamer()

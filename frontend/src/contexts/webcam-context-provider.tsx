@@ -17,7 +17,6 @@ interface ProviderProps {
 }
 
 type VideoDevice = {
-    deviceID: string;
     deviceNumber: number;
     label: string;
 };
@@ -40,7 +39,6 @@ const WebcamContext = createContext<ContextType>({} as ContextType);
 const WebcamContextProvider: React.FC<ProviderProps> = ({ children }) => {
     // States
     const [devices, setDevices] = useState<VideoDevice[]>([]);
-    const [videoStream, setVideoStream] = useState<MediaStream | null>(null);
     const [frameURL, setFrameURL] = useState<string | null>(null);
 
     const canvasRef = useRef<HTMLCanvasElement>();
@@ -53,88 +51,56 @@ const WebcamContextProvider: React.FC<ProviderProps> = ({ children }) => {
     // Functions
     const getVideoDevices = async () => {
         try {
-            const devices = await navigator.mediaDevices.enumerateDevices();
-            const videoDevices = devices
-                .filter((device) => device.kind === "videoinput")
-                .map((device, index) => ({
-                    deviceID: device.deviceId,
-                    deviceNumber: index,
-                    label: device.label || `Camera ${index}`,
-                }));
+            const response = await fetch(
+                "http://localhost:5001/model-settings/get-model-sources"
+            );
+            if (!response.ok) {
+                throw new Error("Failed to fetch video devices from backend");
+            }
+            const data = await response.json();
+            const videoDevices = Object.entries(data.video_devices).map(
+                ([deviceNumber, label]) => ({
+                    deviceNumber: parseInt(deviceNumber),
+                    label: label as string,
+                })
+            );
             setDevices(videoDevices);
         } catch (error) {
-            console.error("Error enumerating video devices:", error);
+            console.error("Error fetching video devices from backend:", error);
         }
-    };
-
-    const sendFrame = (stream: MediaStream) => {
-        const videoTrack = stream.getVideoTracks()[0];
-
-        if (
-            !videoTrack ||
-            !videoTrack.readyState ||
-            videoTrack.readyState === "ended"
-        ) {
-            console.error("Video track is not in a valid state.");
-            return;
-        }
-
-        videoRef.current!.srcObject = new MediaStream([videoTrack]);
-
-        videoRef.current!.onloadedmetadata = () => {
-            canvasRef.current!.width = videoRef.current!.videoWidth;
-            canvasRef.current!.height = videoRef.current!.videoHeight;
-
-            contextRef.current!.drawImage(
-                videoRef.current!,
-                0,
-                0,
-                canvasRef.current!.width,
-                canvasRef.current!.height
-            );
-
-            // Console log current sending framerate
-
-            socketRef.current?.emit("frame", canvasRef.current!.toDataURL());
-
-            // Cleanup
-            videoRef.current!.srcObject = null;
-
-            // Request the next animation frame
-            requestAnimationFrame(() => sendFrame(stream));
-        };
-
-        videoRef.current!.onerror = (error) => {
-            console.error("Error loading video element:", error);
-        };
-
-        videoRef.current!.play().catch((error) => {
-            console.error("Error playing video element:", error);
-        });
     };
 
     // @TODO, add connection status tracking & logic
     const updateSource = (newValue: VideoDevice) => {
         console.log("Source", newValue);
 
-        // Cleanup
-        if (videoStream) {
-            console.log("Stopping video stream");
-            videoStream.getTracks().forEach((track) => track.stop());
-        }
-
-        // Get the new video stream
-        navigator.mediaDevices
-            .getUserMedia({ video: { deviceId: newValue.deviceID } })
-            .then((stream) => {
-                console.log("Got video stream: ", stream);
-                setVideoStream(stream);
-
-                // Start sending frames continuously
-                requestAnimationFrame(() => sendFrame(stream));
+        // Make API call to backend to update the source at http://localhost:5001/model-settings/set-model-source
+        // With the video_device query parameter via post
+        fetch(
+            `http://localhost:5001/model-settings/set-model-source?video_device=${newValue.deviceNumber}`,
+            {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+            }
+        )
+            .then((response) => {
+                if (!response.ok) {
+                    throw new Error(
+                        "Failed to update video source on the backend"
+                    );
+                }
+                return response.json();
+            })
+            .then((data) => {
+                console.log("Updated video source on the backend", data);
             })
             .catch((error) => {
-                console.error("Error getting user media:", error);
+                console.error(
+                    "Error updating video source on the backend",
+                    error
+                );
             });
     };
 
@@ -151,10 +117,6 @@ const WebcamContextProvider: React.FC<ProviderProps> = ({ children }) => {
 
         return () => {
             console.log("Cleaning up webcam connections and logic");
-
-            if (videoStream) {
-                videoStream.getTracks().forEach((track) => track.stop());
-            }
         };
     }, []);
 

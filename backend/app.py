@@ -12,6 +12,10 @@ SOCKETIO = SocketIO(APP, cors_allowed_origins="*")
 
 
 def main():
+
+    # Disable X-Fields in Swagger (Maybe remove this later)
+    APP.config['RESTX_MASK_SWAGGER'] = False
+
     # Start the Flask app with Socket.IO
     api = setup_api(APP)
 
