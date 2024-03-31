@@ -1,0 +1,6 @@
+ultralytics
+flask
+flask-socketio
+flask-restx
+flask-cors
+opencv-python

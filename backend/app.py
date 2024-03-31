@@ -1,69 +1,45 @@
 from flask import Flask
 from flask_socketio import SocketIO
 from flask_cors import CORS
-import cv2
-import numpy as np
-import base64
-import threading
-import time
+from flask_restx import Api, Resource
 
-app = Flask(__name__)
-CORS(app)
-socketio = SocketIO(app, cors_allowed_origins="*")
+from core.streamer import STREAMER
+from apis.model_settings_api import API as MODEL_SETTINGS_API
 
-# Global variable to hold the most recent frame
-latest_frame = None
-running = True
-
-time_recv_last_frame = time.time()
+APP = Flask(__name__)
+CORS(APP)
+SOCKETIO = SocketIO(APP, cors_allowed_origins="*")
 
 
-def display_frames():
-    global latest_frame
-    while running:
-        if latest_frame is not None:
-            cv2.imshow('Frame', latest_frame)
-            if cv2.waitKey(1) & 0xFF == ord('q'):
-                break
-    cv2.destroyAllWindows()
+def main():
+    # Start the Flask app with Socket.IO
+    api = setup_api(APP)
+
+    # Assign socket to emit from
+    STREAMER.set_socket(SOCKETIO)
+
+    SOCKETIO.run(APP, port=5001)
 
 
-# Start the thread for displaying frames
-display_thread = threading.Thread(target=display_frames)
-display_thread.daemon = True
-display_thread.start()
+def setup_api(app):
+    api = Api(app, version='1.0', title='Backend API',
+              description='Holds the backend API calls available to the frontend')
+
+    # Add namespaces to the API
+    api.add_namespace(MODEL_SETTINGS_API)
+
+    return api
 
 
-@socketio.on('frame')
-def handle_frame(data):
-    global latest_frame
-    global time_recv_last_frame
+@SOCKETIO.on('connect')
+def handle_connect():
+    print('Client connected')
 
-    # Decode base64 img to cv2 img
-    data = data.split(',')[1]
-    data = base64.b64decode(data)
 
-    nparr = np.frombuffer(data, dtype=np.uint8)
-    frame = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
-
-    # Draw a circle on the frame
-    cv2.circle(frame, (100, 100), 50, (0, 255, 0), 2)
-
-    # Display the frame locally
-    latest_frame = frame
-    current_time = time.time()
-    framerate = (1 / (current_time - time_recv_last_frame))
-    print(f'Framerate: {framerate:.2f} fps')
-
-    time_recv_last_frame = current_time
-
-    # Encode the modified frame as png to base64 and emit as string back to the client
-    # _, frame_encoded = cv2.imencode('.png', frame)
-    # base64_encoded = base64.b64encode(frame_encoded)
-    # base64_encoded = base64_encoded.decode('utf-8')
-
-    # socketio.emit('processed_frame', base64_encoded)
+@SOCKETIO.on('disconnect')
+def handle_disconnect():
+    print('Client disconnected')
 
 
 if __name__ == '__main__':
-    socketio.run(app, port=5001)
+    main()

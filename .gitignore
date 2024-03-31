@@ -36,5 +36,8 @@ yarn-error.log*
 next-env.d.ts
 tsconfig.json
 
+# python files
+__pycache__
+
 # vscode files
 .vscode
