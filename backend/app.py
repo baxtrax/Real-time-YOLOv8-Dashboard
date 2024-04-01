@@ -5,6 +5,7 @@ from flask_restx import Api, Resource
 
 from core.streamer import STREAMER
 from apis.model_settings_api import API as MODEL_SETTINGS_API
+from apis.stream_control_api import API as STREAM_CONTROL_API
 
 APP = Flask(__name__)
 CORS(APP)
@@ -19,9 +20,6 @@ def main():
     # Start the Flask app with Socket.IO
     api = setup_api(APP)
 
-    # Assign socket to emit from
-    STREAMER.set_socket(SOCKETIO)
-
     SOCKETIO.run(APP, port=5001)
 
 
@@ -31,6 +29,7 @@ def setup_api(app):
 
     # Add namespaces to the API
     api.add_namespace(MODEL_SETTINGS_API)
+    api.add_namespace(STREAM_CONTROL_API)
 
     return api
 

@@ -1,32 +1,33 @@
 "use client";
 
-import React, { useRef, useEffect } from "react";
+import React, { useRef, useEffect, useState } from "react";
 
 import { AspectRatio, Card } from "@mui/joy";
 
 import { useWebcamContext } from "@/contexts/webcam-context-provider";
 
+import NoPhotographyRounded from "@mui/icons-material/NoPhotographyRounded";
+
 const ImageComponent = () => {
-    const { devices, getVideoDevices, updateSource, frameURL } =
+    const { isStreamReady, isImageLoaded, setIsImageLoaded } =
         useWebcamContext();
 
     const imageRef = useRef<HTMLImageElement | null>(null);
 
     useEffect(() => {
         const image = imageRef.current;
+        console.log("isStreamReady", isStreamReady);
 
-        const renderFrame = () => {
-            if (image && frameURL !== null) {
-                image.src = `data:image/png;base64,${frameURL}`;
+        if (image) {
+            if (isStreamReady) {
+                image.src = "http://localhost:5001/stream-control/webcam";
+            } else {
+                image.src = "";
             }
+        }
+    }, [isStreamReady]);
 
-            requestAnimationFrame(renderFrame);
-        };
-
-        renderFrame(); // Initial render
-    }, [frameURL]);
-
-    return <img ref={imageRef} alt="Processed Frame" />;
+    return <img key={Date.now()} ref={imageRef} alt="Processed Frame" />;
 };
 
 /**
@@ -36,12 +37,22 @@ const ImageComponent = () => {
  * @returns The rendered WebcamOutput component.
  */
 const WebcamOutput = ({}) => {
+    const { isStreamReady, isImageLoaded } = useWebcamContext();
+    const noImageComponent = (
+        <AspectRatio ratio="16/9">
+            <div>
+                <NoPhotographyRounded sx={{ fontSize: "6rem", opacity: 0.2 }} />
+            </div>
+        </AspectRatio>
+    );
+
     // The full component
     const fullComponent = (
         <Card variant="soft" sx={{ width: "100%" }}>
-            <AspectRatio ratio="16/9">
-                <ImageComponent />
-                {/* {frameURL !== null ? (
+            {isStreamReady ? <ImageComponent /> : noImageComponent}
+            {/* <AspectRatio ratio="16/9">
+                <ImageComponent /> */}
+            {/* {frameURL !== null ? (
                     <ImageComponent />
                 ) : (
                     <div>
@@ -50,7 +61,7 @@ const WebcamOutput = ({}) => {
                         />
                     </div>
                 )} */}
-                {/* {frameURL !== null ? (
+            {/* {frameURL !== null ? (
                     <ImageComponent />
                 ) : (
                     <div>
@@ -59,7 +70,7 @@ const WebcamOutput = ({}) => {
                         />
                     </div>
                 )} */}
-            </AspectRatio>
+            {/* </AspectRatio> */}
         </Card>
     );
     return fullComponent;

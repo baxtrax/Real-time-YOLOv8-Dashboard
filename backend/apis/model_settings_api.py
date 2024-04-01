@@ -1,5 +1,6 @@
 from flask import request
 from flask_restx import Namespace, Resource, reqparse, fields
+import core.utils as utils
 from core.streamer import STREAMER
 
 # Define namespace
@@ -7,18 +8,11 @@ API = Namespace('Model Settings',
                 description='Handles Model Settings operations',
                 path='/model-settings')
 
-
-def validate_query(value, name):
-    if value is None or value == '':
-        raise ValueError("Query parameter '{}' is required".format(name))
-    return value
-
-
 # Parsers
 set_model_parser = reqparse.RequestParser()
 set_model_parser.add_argument(
     'video_device',
-    type=str,
+    type=utils.validate_query,
     required=True,
     help='The video device to use for the stream')
 

@@ -28,7 +28,9 @@ type ContextType = {
     devices: VideoDevice[];
     getVideoDevices: () => void;
     updateSource: (newValue: VideoDevice) => void;
-    frameURL: string | null;
+    isStreamReady: boolean;
+    isImageLoaded: boolean;
+    setIsImageLoaded: (value: boolean) => void;
 };
 
 // Cheaty way to bypass default value. I will only be using this context in the provider.
@@ -39,14 +41,8 @@ const WebcamContext = createContext<ContextType>({} as ContextType);
 const WebcamContextProvider: React.FC<ProviderProps> = ({ children }) => {
     // States
     const [devices, setDevices] = useState<VideoDevice[]>([]);
-    const [frameURL, setFrameURL] = useState<string | null>(null);
-
-    const canvasRef = useRef<HTMLCanvasElement>();
-    const contextRef = useRef<CanvasRenderingContext2D>();
-    const videoRef = useRef<HTMLVideoElement>();
-
-    // Contexts
-    const { socketRef, onProcessedFrame } = useSocketContext();
+    const [isStreamReady, setStreamReady] = useState<boolean>(false);
+    const [isImageLoaded, setIsImageLoaded] = useState(false);
 
     // Functions
     const getVideoDevices = async () => {
@@ -54,9 +50,11 @@ const WebcamContextProvider: React.FC<ProviderProps> = ({ children }) => {
             const response = await fetch(
                 "http://localhost:5001/model-settings/get-model-sources"
             );
+
             if (!response.ok) {
                 throw new Error("Failed to fetch video devices from backend");
             }
+
             const data = await response.json();
             const videoDevices = Object.entries(data.video_devices).map(
                 ([deviceNumber, label]) => ({
@@ -70,13 +68,10 @@ const WebcamContextProvider: React.FC<ProviderProps> = ({ children }) => {
         }
     };
 
-    // @TODO, add connection status tracking & logic
-    const updateSource = (newValue: VideoDevice) => {
+    const setVideoSource = async (newValue: VideoDevice) => {
         console.log("Source", newValue);
 
-        // Make API call to backend to update the source at http://localhost:5001/model-settings/set-model-source
-        // With the video_device query parameter via post
-        fetch(
+        const response = await fetch(
             `http://localhost:5001/model-settings/set-model-source?video_device=${newValue.deviceNumber}`,
             {
                 method: "POST",
@@ -84,39 +79,51 @@ const WebcamContextProvider: React.FC<ProviderProps> = ({ children }) => {
                     "Content-Type": "application/json",
                 },
             }
-        )
-            .then((response) => {
-                if (!response.ok) {
-                    throw new Error(
-                        "Failed to update video source on the backend"
-                    );
-                }
-                return response.json();
-            })
-            .then((data) => {
-                console.log("Updated video source on the backend", data);
-            })
-            .catch((error) => {
-                console.error(
-                    "Error updating video source on the backend",
-                    error
-                );
-            });
+        );
+
+        if (!response.ok) {
+            throw new Error("Failed to update video source on the backend");
+        }
     };
 
-    // Kill strems and connections on unmount
+    // @TODO, add connection status tracking & logic
+    const updateSource = (newValue: VideoDevice) => {
+        console.log("Source", newValue);
+        stopStream().then(() => {
+            setStreamReady(false);
+            setIsImageLoaded(false);
+
+            setVideoSource(newValue).then(() => {
+                // wait for 1 second before setting
+                setTimeout(() => {
+                    setStreamReady(true);
+                }, 500);
+            });
+        });
+    };
+
+    const stopStream = async () => {
+        const response = await fetch(
+            `http://localhost:5001/stream-control/stop-stream`,
+            {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+            }
+        );
+
+        if (!response.ok) {
+            throw new Error("Failed to stop stream on the backend");
+        }
+    };
+
+    // Kill streams and connections on unmount
     useEffect(() => {
-        // Custome logic on callback
-        onProcessedFrame.current = (data) => {
-            setFrameURL(data);
-        };
-
-        canvasRef.current = document.createElement("canvas");
-        contextRef.current = canvasRef.current.getContext("2d")!;
-        videoRef.current = document.createElement("video");
-
         return () => {
             console.log("Cleaning up webcam connections and logic");
+            setStreamReady(false);
+            stopStream();
         };
     }, []);
 
@@ -125,7 +132,9 @@ const WebcamContextProvider: React.FC<ProviderProps> = ({ children }) => {
         devices,
         getVideoDevices,
         updateSource,
-        frameURL,
+        isStreamReady,
+        isImageLoaded,
+        setIsImageLoaded,
     };
 
     // The full provider w/ context values
