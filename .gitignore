@@ -38,6 +38,7 @@ tsconfig.json
 
 # python files
 __pycache__
+*.pt
 
 # vscode files
 .vscode

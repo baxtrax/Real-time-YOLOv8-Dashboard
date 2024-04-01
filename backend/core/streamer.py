@@ -1,5 +1,6 @@
 from flask import Response
 from core.utils import LOGGER
+from core.predictor import PREDICTOR
 import cv2
 
 
@@ -40,7 +41,8 @@ class Streamer:
                 LOGGER.error("Unable to read frame.")
                 break
 
-            success, encoded_frame = cv2.imencode('.jpg', frame)
+            success, encoded_frame = cv2.imencode(
+                '.jpg', PREDICTOR.predict(frame))
             if not success:
                 LOGGER.error("Unable to encode frame.")
                 break
