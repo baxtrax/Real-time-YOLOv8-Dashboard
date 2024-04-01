@@ -9,8 +9,7 @@ import { useWebcamContext } from "@/contexts/webcam-context-provider";
 import NoPhotographyRounded from "@mui/icons-material/NoPhotographyRounded";
 
 const ImageComponent = () => {
-    const { isStreamReady, isImageLoaded, setIsImageLoaded } =
-        useWebcamContext();
+    const { isStreamReady } = useWebcamContext();
 
     const imageRef = useRef<HTMLImageElement | null>(null);
 
@@ -19,15 +18,19 @@ const ImageComponent = () => {
         console.log("isStreamReady", isStreamReady);
 
         if (image) {
-            if (isStreamReady) {
-                image.src = "http://localhost:5001/stream-control/webcam";
-            } else {
-                image.src = "";
-            }
+            image.src =
+                "http://localhost:5001/stream-control/webcam?" +
+                new Date().getTime();
         }
     }, [isStreamReady]);
 
-    return <img key={Date.now()} ref={imageRef} alt="Processed Frame" />;
+    return (
+        <img
+            ref={imageRef}
+            alt="Processed Frame"
+            style={{ minHeight: "26rem" }}
+        />
+    );
 };
 
 /**
@@ -37,7 +40,7 @@ const ImageComponent = () => {
  * @returns The rendered WebcamOutput component.
  */
 const WebcamOutput = ({}) => {
-    const { isStreamReady, isImageLoaded } = useWebcamContext();
+    const { isStreamReady } = useWebcamContext();
     const noImageComponent = (
         <AspectRatio ratio="16/9">
             <div>

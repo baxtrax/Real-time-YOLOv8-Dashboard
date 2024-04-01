@@ -29,8 +29,6 @@ type ContextType = {
     getVideoDevices: () => void;
     updateSource: (newValue: VideoDevice) => void;
     isStreamReady: boolean;
-    isImageLoaded: boolean;
-    setIsImageLoaded: (value: boolean) => void;
 };
 
 // Cheaty way to bypass default value. I will only be using this context in the provider.
@@ -42,7 +40,6 @@ const WebcamContextProvider: React.FC<ProviderProps> = ({ children }) => {
     // States
     const [devices, setDevices] = useState<VideoDevice[]>([]);
     const [isStreamReady, setStreamReady] = useState<boolean>(false);
-    const [isImageLoaded, setIsImageLoaded] = useState(false);
 
     // Functions
     const getVideoDevices = async () => {
@@ -91,7 +88,6 @@ const WebcamContextProvider: React.FC<ProviderProps> = ({ children }) => {
         console.log("Source", newValue);
         stopStream().then(() => {
             setStreamReady(false);
-            setIsImageLoaded(false);
 
             setVideoSource(newValue).then(() => {
                 // wait for 1 second before setting
@@ -133,8 +129,6 @@ const WebcamContextProvider: React.FC<ProviderProps> = ({ children }) => {
         getVideoDevices,
         updateSource,
         isStreamReady,
-        isImageLoaded,
-        setIsImageLoaded,
     };
 
     // The full provider w/ context values
