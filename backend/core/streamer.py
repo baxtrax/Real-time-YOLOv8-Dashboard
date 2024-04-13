@@ -10,6 +10,8 @@ class Streamer:
         self.stream = None
         self.running = False
 
+        self.devices = self.capture_video_devices()
+
     def start(self):
         LOGGER.info("Starting video stream")
         if self.video_device is None:
@@ -51,7 +53,7 @@ class Streamer:
                    b'Content-Type: image/jpeg\r\n\r\n' +
                    encoded_frame.tobytes() + b'\r\n')
 
-    def get_video_devices(self):
+    def capture_video_devices(self):
         # @TODO: Limitation on device names, dependent on OS specific backend logic.
         # Curse you cross compatibility!
 
@@ -74,6 +76,9 @@ class Streamer:
             cap.release()
             index += 1
         return devices
+
+    def get_video_devices(self):
+        return self.devices
 
     def stream_video(self):
         return Response(self.generate_frames(), mimetype='multipart/x-mixed-replace; boundary=frame')

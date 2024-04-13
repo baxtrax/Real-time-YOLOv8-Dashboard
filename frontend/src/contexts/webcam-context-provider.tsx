@@ -2,14 +2,13 @@
 import React, {
     ReactNode,
     useState,
-    useRef,
     useEffect,
     useContext,
     createContext,
 } from "react";
 
-import { useSocketContext } from "@/contexts/model-socket";
-import { ContactlessOutlined } from "@mui/icons-material";
+import { useApiContext } from "@/contexts/api-context-provider";
+import { useSnackbarContext } from "@/contexts/snackbar-context-provider";
 
 // The props for the provider
 interface ProviderProps {
@@ -41,11 +40,14 @@ const WebcamContextProvider: React.FC<ProviderProps> = ({ children }) => {
     const [devices, setDevices] = useState<VideoDevice[]>([]);
     const [isStreamReady, setStreamReady] = useState<boolean>(false);
 
+    const { MODEL_SETTINGS_ENDPOINT, STREAM_CONTROL_ENDPOINT } =
+        useApiContext();
+
     // Functions
     const getVideoDevices = async () => {
         try {
             const response = await fetch(
-                "http://localhost:5001/model-settings/get-model-sources"
+                MODEL_SETTINGS_ENDPOINT + "get-model-sources"
             );
 
             if (!response.ok) {
@@ -53,12 +55,16 @@ const WebcamContextProvider: React.FC<ProviderProps> = ({ children }) => {
             }
 
             const data = await response.json();
+
             const videoDevices = Object.entries(data.video_devices).map(
                 ([deviceNumber, label]) => ({
                     deviceNumber: parseInt(deviceNumber),
                     label: label as string,
                 })
             );
+
+            console.log("Video Devices", videoDevices);
+
             setDevices(videoDevices);
         } catch (error) {
             console.error("Error fetching video devices from backend:", error);
@@ -69,9 +75,10 @@ const WebcamContextProvider: React.FC<ProviderProps> = ({ children }) => {
         console.log("Source", newValue);
 
         const response = await fetch(
-            `http://localhost:5001/model-settings/set-model-source?video_device=${newValue.deviceNumber}`,
+            MODEL_SETTINGS_ENDPOINT +
+                `set-model-source?video_device=${newValue.deviceNumber}`,
             {
-                method: "POST",
+                method: "PATCH",
                 headers: {
                     "Content-Type": "application/json",
                 },
@@ -99,15 +106,12 @@ const WebcamContextProvider: React.FC<ProviderProps> = ({ children }) => {
     };
 
     const stopStream = async () => {
-        const response = await fetch(
-            `http://localhost:5001/stream-control/stop-stream`,
-            {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-            }
-        );
+        const response = await fetch(STREAM_CONTROL_ENDPOINT + `stop-stream`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+        });
 
         if (!response.ok) {
             throw new Error("Failed to stop stream on the backend");

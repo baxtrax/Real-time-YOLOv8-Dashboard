@@ -12,7 +12,7 @@ import WebcamPanel from "@components/panel/webcam";
 import { ModelSettingsContextProvider } from "@/contexts/model-settings-context-provider";
 import { WebcamContextProvider } from "@/contexts/webcam-context-provider";
 import { SnackbarContextProvider } from "@/contexts/snackbar-context-provider";
-import { SocketContextProvider } from "@/contexts/model-socket";
+import { ApiContextProvider } from "@/contexts/api-context-provider";
 
 /**
  * Overall structure of the home page. Is combosed of multiple panels. Using
@@ -79,7 +79,7 @@ const Home = ({}) => {
                 }}
             >
                 <SnackbarContextProvider>
-                    <SocketContextProvider>
+                    <ApiContextProvider>
                         <WebcamContextProvider>
                             <Stack
                                 spacing={2}
@@ -93,7 +93,7 @@ const Home = ({}) => {
                                 {rightPanel}
                             </Stack>
                         </WebcamContextProvider>
-                    </SocketContextProvider>
+                    </ApiContextProvider>
                 </SnackbarContextProvider>
             </Sheet>
         </React.StrictMode>
