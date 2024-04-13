@@ -5,12 +5,13 @@ import { useModelSettingsContext } from "@/contexts/model-settings-context-provi
 import { useWebcamContext } from "@/contexts/webcam-context-provider";
 import SelectInput from "@components/input/selector";
 import SliderInput from "@components/input/slider";
+import SwitchInput from "@components/input/switch";
 import BasePanel from "@components/panel/base";
 
 /**
  * ModelSettingsPanel component for rendering the model settings panel. It
  * contains the source for object detection, model size for object detection,
- * confidence filter, IOU filter, and class filter.
+ * confidence filter, IOU filter, class filter, and Agnostic NMS.
  *
  * @returns
  * The ModelSettingsPanel component.
@@ -21,6 +22,7 @@ const ModelSettingsPanel = ({}) => {
         updateConf,
         updateIOU,
         updateClassFilter,
+        updateAgnosticNMS,
         MODEL_SIZE,
         MODEL_SIZE_PARAMS,
         MODEL_SIZE_FLOPS,
@@ -31,7 +33,6 @@ const ModelSettingsPanel = ({}) => {
 
     // ONLOAD
     // Get the video devices
-    // @TODO call this on select open?
     useEffect(() => {
         getVideoDevices();
     }, []);
@@ -58,6 +59,7 @@ const ModelSettingsPanel = ({}) => {
         newValue: string | string[] | null
     ) => {
         if (typeof newValue === "string") {
+            console.log("Model Size: ", newValue);
             updateModelSize(MODEL_SIZE[newValue as keyof typeof MODEL_SIZE]);
         }
     };
@@ -86,6 +88,12 @@ const ModelSettingsPanel = ({}) => {
         if (newValue instanceof Array) {
             updateClassFilter(newValue);
         }
+    };
+
+    const handleAgnosticNMSSwitch = (
+        event: React.ChangeEvent<HTMLInputElement>
+    ) => {
+        updateAgnosticNMS(event.target.checked);
     };
 
     // COMPONENTS
@@ -132,6 +140,7 @@ const ModelSettingsPanel = ({}) => {
             <SelectInput
                 labelText="Model Size"
                 selectPlaceholder="Choose a model..."
+                selectDefaultValue="n"
                 selectOptions={modelSizeOptions}
                 onChangeFn={handleModelSizeSelect}
             />
@@ -156,6 +165,10 @@ const ModelSettingsPanel = ({}) => {
                 selectOptions={classOptions}
                 onChangeFn={handleClassFilterSelect}
                 isMultipleSelect={true}
+            />
+            <SwitchInput
+                labelText="Agnostic NMS"
+                onChange={handleAgnosticNMSSwitch}
             />
         </BasePanel>
     );

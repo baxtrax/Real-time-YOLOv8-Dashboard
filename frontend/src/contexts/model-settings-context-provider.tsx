@@ -1,33 +1,43 @@
 "use client";
-import React, { ReactNode, useState, useContext, createContext } from "react";
+import React, {
+    ReactNode,
+    useState,
+    useContext,
+    useEffect,
+    createContext,
+    use,
+} from "react";
 
 import { useSnackbarContext } from "@/contexts/snackbar-context-provider";
 
+import { useApiContext } from "@/contexts/api-context-provider";
+import { send } from "process";
+
 // The model sizes
 enum MODEL_SIZE {
-    N = "Nano",
-    S = "Small",
-    M = "Medium",
-    L = "Large",
-    X = "Extra Large",
+    n = "Nano",
+    s = "Small",
+    m = "Medium",
+    l = "Large",
+    x = "Extra Large",
 }
 
 // Parameters for each model size
 enum MODEL_SIZE_PARAMS {
-    N = "3.2 M",
-    S = "11.2 M",
-    M = "25.9 M",
-    L = "43.7 M",
-    X = "68.2 M",
+    n = "3.2 M",
+    s = "11.2 M",
+    m = "25.9 M",
+    l = "43.7 M",
+    x = "68.2 M",
 }
 
 // FLOPs for each model size
 enum MODEL_SIZE_FLOPS {
-    N = "8.7 B",
-    S = "28.6 B",
-    M = "78.9 B",
-    L = "165.2 B",
-    X = "257.8 B",
+    n = "8.7 B",
+    s = "28.6 B",
+    m = "78.9 B",
+    l = "165.2 B",
+    x = "257.8 B",
 }
 
 // The COCO classes
@@ -126,6 +136,7 @@ type ContextType = {
     updateConf: (newValue: number) => void;
     updateIOU: (newValue: number) => void;
     updateClassFilter: (newValue: string[]) => void;
+    updateAgnosticNMS: (newValue: boolean) => void;
     MODEL_SIZE: typeof MODEL_SIZE;
     MODEL_SIZE_PARAMS: typeof MODEL_SIZE_PARAMS;
     MODEL_SIZE_FLOPS: typeof MODEL_SIZE_FLOPS;
@@ -140,35 +151,121 @@ const ModelSettingsContext = createContext<ContextType>({} as ContextType);
 const ModelSettingsContextProvider: React.FC<ProviderProps> = ({
     children,
 }) => {
-    // States
-    const [modelSize, setModelSize] = useState<MODEL_SIZE>(MODEL_SIZE.N);
-    const [conf, setConf] = useState(25);
-    const [iou, setIOU] = useState(70);
-    const [classes, setClasses] = useState<string[]>([]);
-
     const { displayErrorSnackbar } = useSnackbarContext();
+
+    const { MODEL_SETTINGS_ENDPOINT } = useApiContext();
 
     // Update functions
 
-    const updateModelSize = (newValue: MODEL_SIZE) => {
-        console.log("Model Size", newValue);
-        setModelSize(newValue);
-        displayErrorSnackbar("Model Size: " + newValue);
+    const updateModelSize = async (newValue: MODEL_SIZE) => {
+        const convertedValue = newValue[0].toLowerCase(); // Only need first character
+
+        console.log("Sending new Model Size: ", convertedValue);
+
+        const response = await fetch(
+            MODEL_SETTINGS_ENDPOINT + `set-model-size?size=${convertedValue}`,
+            {
+                method: "PATCH",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+            }
+        );
+
+        if (!response.ok) {
+            throw new Error("Failed to update Model Size on the backend");
+        } else {
+            console.log("Model Size Updated");
+        }
     };
 
-    const updateConf = (newValue: number) => {
-        console.log("Class Filter", newValue);
-        setConf(newValue);
+    const updateConf = async (newValue: number) => {
+        const convertedValue = newValue / 100;
+
+        console.log("Sending new Confidence: ", convertedValue);
+
+        const response = await fetch(
+            MODEL_SETTINGS_ENDPOINT +
+                `set-confidence-filter?confidence=${convertedValue}`,
+            {
+                method: "PATCH",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+            }
+        );
+
+        if (!response.ok) {
+            throw new Error("Failed to update Confidence on the backend");
+        } else {
+            console.log("Confidence Updated");
+        }
     };
 
-    const updateIOU = (newValue: number) => {
-        console.log("IOU", newValue);
-        setIOU(newValue);
+    const updateIOU = async (newValue: number) => {
+        const convertedValue = newValue / 100;
+
+        console.log("Sending new IOU:", convertedValue);
+
+        const response = await fetch(
+            MODEL_SETTINGS_ENDPOINT + `set-iou-filter?iou=${convertedValue}`,
+            {
+                method: "PATCH",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+            }
+        );
+
+        if (!response.ok) {
+            throw new Error("Failed to update IOU on the backend");
+        } else {
+            console.log("IOU Updated");
+        }
     };
 
-    const updateClassFilter = (newValue: string[]) => {
-        console.log("Class Filter", newValue);
-        setClasses(newValue);
+    const updateClassFilter = async (newValue: string[]) => {
+        const convertedValue = newValue.map((value) => parseInt(value));
+
+        console.log("Sending new Class Filter", convertedValue);
+
+        const response = await fetch(
+            MODEL_SETTINGS_ENDPOINT + `set-class-filter`,
+            {
+                method: "PATCH",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ class_filter: convertedValue }),
+            }
+        );
+
+        if (!response.ok) {
+            throw new Error("Failed to update Class Filter on the backend");
+        } else {
+            console.log("Class Filter Updated");
+        }
+    };
+
+    const updateAgnosticNMS = async (newValue: boolean) => {
+        console.log("Sending new Agnostic NMS: ", newValue);
+
+        const response = await fetch(
+            MODEL_SETTINGS_ENDPOINT +
+                `set-agnostic-nms?agnostic_nms=${newValue}`,
+            {
+                method: "PATCH",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+            }
+        );
+
+        if (!response.ok) {
+            throw new Error("Failed to update Agnostic NMS on the backend");
+        } else {
+            console.log("Agnostic NMS Updated");
+        }
     };
 
     // Passable context values
@@ -177,6 +274,7 @@ const ModelSettingsContextProvider: React.FC<ProviderProps> = ({
         updateConf,
         updateIOU,
         updateClassFilter,
+        updateAgnosticNMS,
         MODEL_SIZE,
         MODEL_SIZE_PARAMS,
         MODEL_SIZE_FLOPS,

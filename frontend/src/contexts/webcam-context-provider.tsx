@@ -63,8 +63,6 @@ const WebcamContextProvider: React.FC<ProviderProps> = ({ children }) => {
                 })
             );
 
-            console.log("Video Devices", videoDevices);
-
             setDevices(videoDevices);
         } catch (error) {
             console.error("Error fetching video devices from backend:", error);
@@ -85,8 +83,12 @@ const WebcamContextProvider: React.FC<ProviderProps> = ({ children }) => {
             }
         );
 
+        console.log("Response", response);
+
         if (!response.ok) {
             throw new Error("Failed to update video source on the backend");
+        } else {
+            console.log("Video Source Updated");
         }
     };
 

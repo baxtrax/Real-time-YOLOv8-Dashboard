@@ -12,6 +12,7 @@ import BaseInput from "@components/input/base";
 interface SwitchInputProps {
     labelText?: string;
     hasHelp?: boolean;
+    onChange?: (event: React.ChangeEvent<HTMLInputElement>) => void;
 }
 
 /**
@@ -21,6 +22,8 @@ interface SwitchInputProps {
  * (OPTIONAL) The label text for the input.
  * @param hasHelp
  * (OPTIONAL) Whether the input has a help button.
+ * @param onChange
+ * (OPTIONAL) The function to call when the switch is toggled.
  *
  * @returns
  * The NumberInput component.
@@ -28,6 +31,7 @@ interface SwitchInputProps {
 const SwitchInput: React.FC<SwitchInputProps> = ({
     labelText = "placeholder",
     hasHelp = true,
+    onChange = () => {},
 }) => {
     // The full component
     const fullComponent = (
@@ -44,6 +48,7 @@ const SwitchInput: React.FC<SwitchInputProps> = ({
                         transition: "width 0.2s, left 0.2s",
                     },
                 }}
+                onChange={onChange}
             />
         </BaseInput>
     );

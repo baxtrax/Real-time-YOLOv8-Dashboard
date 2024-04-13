@@ -112,11 +112,11 @@ class GetModelSources(Resource):
 
 
 set_class_filter_model = API.model('Class Filter List', {
-    'class_list': fields.List(fields.Integer,
-                              description='List of class index ids. \
+    'class_filter': fields.List(fields.Integer,
+                                description='List of class index ids. \
                                              Indices are integers',
-                              example=[0, 1, 23, 58],
-                              required=True)
+                                example=[0, 1, 23, 58],
+                                required=True)
 })
 
 
@@ -126,9 +126,29 @@ class SetClassFilter(Resource):
     @API.expect(set_class_filter_model, validate=True)
     def patch(self):
         data = request.json
-        class_list = data['class_list']
+        class_list = data['class_filter']
         if len(class_list) == 0:
             class_list = None
 
         PREDICTOR.set_class_filter(class_list)
         return {'message': f'Class filter set to {class_list}'}, 200
+
+
+set_agnostic_nms_parser = reqparse.RequestParser()
+set_agnostic_nms_parser.add_argument(
+    'agnostic_nms',
+    type=bool,
+    required=True,
+    help='The Agnostic NMS mode to alter bias of the NMS calculation')
+
+
+@API.route('/set-agnostic-nms')
+@API.doc(description='Update/Set the Agnostic NMS mode to alter bias of NMS calculation')
+class SetAgnosticNMS(Resource):
+    @API.expect(set_agnostic_nms_parser, validate=True)
+    def patch(self):
+        args = set_agnostic_nms_parser.parse_args()
+        agnostic_nms = args['agnostic_nms']
+
+        PREDICTOR.set_agnsotic_mode(agnostic_nms)
+        return {'message': f'IOU filter set to {agnostic_nms}'}, 200
