@@ -3,7 +3,7 @@ from flask_socketio import SocketIO
 from flask_cors import CORS
 from flask_restx import Api, Resource
 
-from core.streamer import STREAMER
+from core.predictor import PREDICTOR
 from apis.model_settings_api import API as MODEL_SETTINGS_API
 from apis.stream_control_api import API as STREAM_CONTROL_API
 from apis.heartbeat_api import API as HEARTBEAT_API
@@ -21,6 +21,8 @@ def main():
 
     # Start the Flask app with Socket.IO
     api = setup_api(APP)
+
+    PREDICTOR.set_socketio(SOCKETIO)
 
     SOCKETIO.run(APP, port=5001)
 

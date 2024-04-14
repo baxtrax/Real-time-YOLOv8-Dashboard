@@ -1,7 +1,10 @@
+"use client";
 import { Stack } from "@mui/joy";
 
 import SquareCardOutput from "@components/output/square-card";
 import BasePanel from "@components/panel/base";
+
+import { useInformationContext } from "@/contexts/information-panel-context";
 
 /**
  * InformationPanel component for rendering the information panel.
@@ -12,6 +15,8 @@ import BasePanel from "@components/panel/base";
  * The InformationPanel component.
  */
 const InformationPanel = ({}) => {
+    const { infoData } = useInformationContext();
+
     // The full component
     const fullComponent = (
         <BasePanel labelText="Information">
@@ -23,25 +28,30 @@ const InformationPanel = ({}) => {
                 useFlexGap
                 spacing={2}
             >
-                {/* Create the Square Card Outputs*/}
+                {/* Create the Square Card Outputs */}
                 <SquareCardOutput
                     topLabelText={`Overall\nSpeed`}
-                    middleLabelText="45"
+                    middleLabelText={infoData.fps_data.toString()}
                     bottomLabelText="FPS"
                 />
                 <SquareCardOutput
+                    topLabelText={`Preprocess\nSpeed`}
+                    middleLabelText={infoData.preprocess_data.toString()}
+                    bottomLabelText="ms"
+                />
+                <SquareCardOutput
                     topLabelText={`Inference\nSpeed`}
-                    middleLabelText="12.53"
+                    middleLabelText={infoData.inference_data.toString()}
                     bottomLabelText="ms"
                 />
                 <SquareCardOutput
                     topLabelText={`Postprocess\nSpeed`}
-                    middleLabelText="40"
+                    middleLabelText={infoData.postprocess_data.toString()}
                     bottomLabelText="ms"
                 />
                 <SquareCardOutput
                     topLabelText={`Objects\nDetected`}
-                    middleLabelText="3"
+                    middleLabelText={infoData.num_objects_data.toString()}
                     bottomLabelText="Total"
                 />
             </Stack>

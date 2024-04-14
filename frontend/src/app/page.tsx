@@ -13,6 +13,8 @@ import { ModelSettingsContextProvider } from "@/contexts/model-settings-context-
 import { WebcamContextProvider } from "@/contexts/webcam-context-provider";
 import { SnackbarContextProvider } from "@/contexts/snackbar-context-provider";
 import { ApiContextProvider } from "@/contexts/api-context-provider";
+import { SocketContextProvider } from "@/contexts/socket-context-provider";
+import { InformationContextProvider } from "@/contexts/information-panel-context";
 
 /**
  * Overall structure of the home page. Is combosed of multiple panels. Using
@@ -31,7 +33,9 @@ const Home = ({}) => {
             flexBasis={0}
             minWidth={400}
         >
-            <InformationPanel />
+            <InformationContextProvider>
+                <InformationPanel />
+            </InformationContextProvider>
             <FeatureSettingsPanel />
             <Stack
                 direction="row"
@@ -79,21 +83,23 @@ const Home = ({}) => {
                 }}
             >
                 <SnackbarContextProvider>
-                    <ApiContextProvider>
-                        <WebcamContextProvider>
-                            <Stack
-                                spacing={2}
-                                direction="row"
-                                width="100%"
-                                margin="1rem"
-                                flexWrap="wrap"
-                                useFlexGap
-                            >
-                                {leftPanel}
-                                {rightPanel}
-                            </Stack>
-                        </WebcamContextProvider>
-                    </ApiContextProvider>
+                    <SocketContextProvider>
+                        <ApiContextProvider>
+                            <WebcamContextProvider>
+                                <Stack
+                                    spacing={2}
+                                    direction="row"
+                                    width="100%"
+                                    margin="1rem"
+                                    flexWrap="wrap"
+                                    useFlexGap
+                                >
+                                    {leftPanel}
+                                    {rightPanel}
+                                </Stack>
+                            </WebcamContextProvider>
+                        </ApiContextProvider>
+                    </SocketContextProvider>
                 </SnackbarContextProvider>
             </Sheet>
         </React.StrictMode>

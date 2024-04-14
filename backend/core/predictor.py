@@ -16,6 +16,19 @@ class Predictor():
                                      classes=self.class_filter,
                                      agnostic_nms=self.agnostic_nms,
                                      verbose=False)
+
+        # Round speeds to 2 decimal places
+        for key in results[0].speed.keys():
+            results[0].speed[key] = round(results[0].speed[key], 2)
+
+        # Includes preprocess, inference, and postprocess speeds, fps, and num detections
+        self.metrics = {**results[0].speed,
+                        'num_detected_objs': len(results[0].boxes.conf),
+                        'fps': round(1000 / sum([results[0].speed[key] for key in results[0].speed.keys()]))}
+
+        if self.socketio:
+            self.socketio.emit('metrics', self.metrics)
+
         annotated_frame = results[0].plot()
         return annotated_frame
 
@@ -33,6 +46,9 @@ class Predictor():
 
     def set_agnsotic_mode(self, agnostic):
         self.agnostic_nms = agnostic
+
+    def set_socketio(self, socketio):
+        self.socketio = socketio
 
 
 PREDICTOR = Predictor()

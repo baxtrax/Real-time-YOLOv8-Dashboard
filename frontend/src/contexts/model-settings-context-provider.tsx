@@ -11,7 +11,6 @@ import React, {
 import { useSnackbarContext } from "@/contexts/snackbar-context-provider";
 
 import { useApiContext } from "@/contexts/api-context-provider";
-import { send } from "process";
 
 // The model sizes
 enum MODEL_SIZE {

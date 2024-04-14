@@ -8,6 +8,7 @@ import React, {
 } from "react";
 
 import { useApiContext } from "@/contexts/api-context-provider";
+import { useSocketContext } from "@/contexts/socket-context-provider";
 import { useSnackbarContext } from "@/contexts/snackbar-context-provider";
 
 // The props for the provider
