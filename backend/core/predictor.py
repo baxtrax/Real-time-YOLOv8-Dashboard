@@ -1,5 +1,6 @@
 from ultralytics import YOLO
 import core.utils as utils
+import numpy as np
 
 
 class Predictor():
@@ -24,6 +25,7 @@ class Predictor():
 
         if self.socketio:
             self.socketio.emit('metrics', self.calculate_metrics(results))
+            self.socketio.emit('predictions', self.get_top_k_results(results))
 
         annotated_frame = results[0].plot()
         return annotated_frame
@@ -44,6 +46,24 @@ class Predictor():
                 'postprocess': post_ms,
                 'num_detected_objs': len(results[0].boxes.conf),
                 'fps': avg_fps, }
+
+    def get_top_k_results(self, results):
+        confs = results[0].boxes.conf
+        length = min(confs.size()[0], 5)
+        top_k, indexes = confs.topk(length, sorted=True)
+
+        # Create conf - class dictionary
+        class_conf_dict = {}
+        for i in range(length):
+            class_index = results[0].boxes.cls[indexes[i]].item()
+            class_name = results[0].names[class_index]
+            conf = top_k[i].item()
+
+            # Only update if the class is not already in the dictionary
+            if class_name not in class_conf_dict:
+                class_conf_dict[class_name] = conf
+
+        return class_conf_dict
 
     def set_confidence_filter(self, confidence):
         self.conf = confidence

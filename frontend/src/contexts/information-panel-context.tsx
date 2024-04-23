@@ -59,7 +59,6 @@ const InformationContextProvider: React.FC<ProviderProps> = ({ children }) => {
     useEffect(() => {
         // Custom logic on callback
         onMetrics.current = (data) => {
-            console.log("Metrics Data update");
             parseData(data);
         };
     }, []);
