@@ -31,11 +31,7 @@ const PredictionsContext = createContext<ContextType>({} as ContextType);
 // The context provider
 const PredictionsContextProvider: React.FC<ProviderProps> = ({ children }) => {
     // States
-    const [predictionsData, setPredictionsData] = useState<PredictionsData>({
-        apple: 100,
-        dog: 20,
-        pineapple: 5,
-    });
+    const [predictionsData, setPredictionsData] = useState<PredictionsData>({});
 
     // Update functions
 

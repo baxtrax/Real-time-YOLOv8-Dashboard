@@ -59,6 +59,16 @@ const PredictionsOutput = ({}) => {
         )
     );
 
+    // Add empty linear progress bar if less than 5 predictions
+
+    if (predictionsComponents.length < 5) {
+        for (let i = predictionsComponents.length; i < 5; i++) {
+            predictionsComponents.push(
+                <LinearProgressWithLabel key={i} labelText="N/A" value={0} />
+            );
+        }
+    }
+
     // The full component
     const fullComponent = (
         <Stack spacing={2} flexGrow={1}>
