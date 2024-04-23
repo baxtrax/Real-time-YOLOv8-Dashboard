@@ -1,4 +1,5 @@
 from ultralytics import YOLO
+import core.utils as utils
 
 
 class Predictor():
@@ -8,6 +9,10 @@ class Predictor():
         self.iou = 0.7
         self.class_filter = None
         self.agnostic_nms = False
+        self.fps_moving_avg = utils.MovingAverage(10)
+        self.pre_moving_avg = utils.MovingAverage(10)
+        self.inf_moving_avg = utils.MovingAverage(10)
+        self.post_moving_avg = utils.MovingAverage(10)
 
     def predict(self, frame):
         results = self.model.predict(frame,
@@ -17,20 +22,28 @@ class Predictor():
                                      agnostic_nms=self.agnostic_nms,
                                      verbose=False)
 
-        # Round speeds to 2 decimal places
-        for key in results[0].speed.keys():
-            results[0].speed[key] = round(results[0].speed[key], 2)
-
-        # Includes preprocess, inference, and postprocess speeds, fps, and num detections
-        self.metrics = {**results[0].speed,
-                        'num_detected_objs': len(results[0].boxes.conf),
-                        'fps': round(1000 / sum([results[0].speed[key] for key in results[0].speed.keys()]))}
-
         if self.socketio:
-            self.socketio.emit('metrics', self.metrics)
+            self.socketio.emit('metrics', self.calculate_metrics(results))
 
         annotated_frame = results[0].plot()
         return annotated_frame
+
+    def calculate_metrics(self, results):
+        # Calculate FPS
+        pre_ms = self.pre_moving_avg.next(results[0].speed['preprocess'])
+        inf_ms = self.inf_moving_avg.next(results[0].speed['inference'])
+        post_ms = self.post_moving_avg.next(results[0].speed['postprocess'])
+
+        curr_fps = 1000 / (results[0].speed['preprocess'] +
+                           results[0].speed['inference'] +
+                           results[0].speed['postprocess'])
+        avg_fps = self.fps_moving_avg.next(curr_fps)
+
+        return {'preprocess': pre_ms,
+                'inference': inf_ms,
+                'postprocess': post_ms,
+                'num_detected_objs': len(results[0].boxes.conf),
+                'fps': avg_fps, }
 
     def set_confidence_filter(self, confidence):
         self.conf = confidence

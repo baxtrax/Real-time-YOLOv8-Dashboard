@@ -7,6 +7,8 @@ from core.predictor import PREDICTOR
 from apis.model_settings_api import API as MODEL_SETTINGS_API
 from apis.stream_control_api import API as STREAM_CONTROL_API
 from apis.heartbeat_api import API as HEARTBEAT_API
+from apis.feature_settings_api import API as FEATURE_SETTINGS_API
+from apis.feature_specific_settings_api import API as FEATURE_SPECIFIC_SETTINGS_API
 
 APP = Flask(__name__)
 CORS(APP)
@@ -32,9 +34,11 @@ def setup_api(app):
               description='Holds the backend API calls available to the frontend')
 
     # Add namespaces to the API
-    api.add_namespace(MODEL_SETTINGS_API)
     api.add_namespace(STREAM_CONTROL_API)
     api.add_namespace(HEARTBEAT_API)
+    api.add_namespace(MODEL_SETTINGS_API)
+    api.add_namespace(FEATURE_SETTINGS_API)
+    api.add_namespace(FEATURE_SPECIFIC_SETTINGS_API)
 
     return api
 

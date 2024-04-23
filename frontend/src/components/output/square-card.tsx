@@ -46,7 +46,12 @@ const SquareCardOutput: React.FC<SquareCardOutputProps> = ({
 
     // Middle label of the card
     const middleLabel = (
-        <Typography level="title-md" color="primary" fontSize="xxx-large">
+        <Typography
+            level="title-md"
+            color="primary"
+            fontSize="xxx-large"
+            fontFamily="monospace"
+        >
             {middleLabelText}
         </Typography>
     );

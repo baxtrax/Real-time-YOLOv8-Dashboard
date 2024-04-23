@@ -15,11 +15,11 @@ interface ProviderProps {
 }
 
 type InfoData = {
-    preprocess_data: number;
-    inference_data: number;
-    postprocess_data: number;
-    num_objects_data: number;
-    fps_data: number;
+    preprocess_data: string;
+    inference_data: string;
+    postprocess_data: string;
+    num_objects_data: string;
+    fps_data: string;
 };
 
 // The props for the context
@@ -35,11 +35,11 @@ const InformationContext = createContext<ContextType>({} as ContextType);
 const InformationContextProvider: React.FC<ProviderProps> = ({ children }) => {
     // States
     const [infoData, setInfoData] = useState<InfoData>({
-        preprocess_data: 0.0,
-        inference_data: 0.0,
-        postprocess_data: 0.0,
-        num_objects_data: 0,
-        fps_data: 0,
+        preprocess_data: "0.00",
+        inference_data: "0.00",
+        postprocess_data: "0.00",
+        num_objects_data: "0",
+        fps_data: "0.00",
     });
 
     const { onMetrics } = useSocketContext();
