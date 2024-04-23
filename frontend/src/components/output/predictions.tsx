@@ -1,6 +1,9 @@
+"use client";
 import React from "react";
 
 import { LinearProgress, Stack, Typography } from "@mui/joy";
+
+import { usePredictionsContext } from "@/contexts/predictions-context-provider";
 
 /**
  * LinearProgressWithLabel component props
@@ -43,14 +46,23 @@ const LinearProgressWithLabel: React.FC<LinearProgressWithLabelProps> = ({
  * The PredictionsOutput component.
  */
 const PredictionsOutput = ({}) => {
+    const { predictionsData } = usePredictionsContext();
+
+    // Map predictions data to LinearProgressWithLabel components
+    const predictionsComponents = Object.entries(predictionsData).map(
+        ([label, value]) => (
+            <LinearProgressWithLabel
+                key={label}
+                labelText={label}
+                value={value}
+            />
+        )
+    );
+
     // The full component
     const fullComponent = (
         <Stack spacing={2} flexGrow={1}>
-            <LinearProgressWithLabel labelText="Baseball glove" value={20} />
-            <LinearProgressWithLabel labelText="Pear" value={40} />
-            <LinearProgressWithLabel labelText="Plane" value={60} />
-            <LinearProgressWithLabel labelText="Phone" value={80} />
-            <LinearProgressWithLabel labelText="Person" value={100} />
+            {predictionsComponents}
         </Stack>
     );
     return fullComponent;

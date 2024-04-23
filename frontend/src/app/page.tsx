@@ -15,6 +15,7 @@ import { SnackbarContextProvider } from "@/contexts/snackbar-context-provider";
 import { ApiContextProvider } from "@/contexts/api-context-provider";
 import { SocketContextProvider } from "@/contexts/socket-context-provider";
 import { InformationContextProvider } from "@/contexts/information-panel-context";
+import { PredictionsContextProvider } from "@/contexts/predictions-context-provider";
 
 /**
  * Overall structure of the home page. Is combosed of multiple panels. Using
@@ -64,7 +65,9 @@ const Home = ({}) => {
             minWidth={400}
         >
             <WebcamPanel />
-            <PredictionsPanel />
+            <PredictionsContextProvider>
+                <PredictionsPanel />
+            </PredictionsContextProvider>
         </Stack>
     );
 

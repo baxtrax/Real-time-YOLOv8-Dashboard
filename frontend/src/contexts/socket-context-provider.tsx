@@ -19,6 +19,7 @@ interface ProviderProps {
 type ContextType = {
     socketRef: React.MutableRefObject<Socket | null | undefined>;
     onMetrics: React.MutableRefObject<((data: any) => void) | null>;
+    onPredictions: React.MutableRefObject<((data: any) => void) | null>;
 };
 
 // Cheaty way to bypass default value. I will only be using this context in the provider.
@@ -31,11 +32,13 @@ const SocketContextProvider: React.FC<ProviderProps> = ({ children }) => {
     const { displayErrorSnackbar } = useSnackbarContext();
     const socketRef = useRef<Socket | null>(); // Ref to track socket object
     const onMetrics = useRef<((data: any) => void) | null>(null); // Ref to track callback function
+    const onPredictions = useRef<((data: any) => void) | null>(null); // Ref to track callback function
 
     // Passable context values
     const contextValues = {
         socketRef,
         onMetrics,
+        onPredictions,
     };
 
     const initSocket = () => {
@@ -60,6 +63,13 @@ const SocketContextProvider: React.FC<ProviderProps> = ({ children }) => {
                 contextValues.onMetrics.current(data);
             }
         });
+
+        socketRef.current.on("predictions", (data: any) => {
+            // Check if the callback function is provided and call it
+            if (contextValues.onPredictions.current) {
+                contextValues.onPredictions.current(data);
+            }
+        });
     };
 
     const uninitSocket = () => {
@@ -69,6 +79,7 @@ const SocketContextProvider: React.FC<ProviderProps> = ({ children }) => {
             socketRef.current.off("disconnect");
             socketRef.current.off("connect_error");
             socketRef.current.off("metrics");
+            socketRef.current.off("predictions");
             socketRef.current = null; // Reset the ref
         }
     };
