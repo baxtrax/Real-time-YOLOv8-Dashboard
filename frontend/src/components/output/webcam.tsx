@@ -24,13 +24,7 @@ const ImageComponent = () => {
         }
     }, [isStreamReady]);
 
-    return (
-        <img
-            ref={imageRef}
-            alt="Processed Frame"
-            style={{ minHeight: "26rem" }}
-        />
-    );
+    return <img ref={imageRef} alt="Processed Frame" />;
 };
 
 /**
