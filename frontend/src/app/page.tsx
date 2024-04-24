@@ -16,6 +16,7 @@ import { ApiContextProvider } from "@/contexts/api-context-provider";
 import { SocketContextProvider } from "@/contexts/socket-context-provider";
 import { InformationContextProvider } from "@/contexts/information-panel-context";
 import { PredictionsContextProvider } from "@/contexts/predictions-context-provider";
+import { FeatureSettingsContextProvider } from "@/contexts/feature-settings-provider";
 
 /**
  * Overall structure of the home page. Is combosed of multiple panels. Using
@@ -37,7 +38,9 @@ const Home = ({}) => {
             <InformationContextProvider>
                 <InformationPanel />
             </InformationContextProvider>
-            <FeatureSettingsPanel />
+            <FeatureSettingsContextProvider>
+                <FeatureSettingsPanel />
+            </FeatureSettingsContextProvider>
             <Stack
                 direction="row"
                 spacing={2}

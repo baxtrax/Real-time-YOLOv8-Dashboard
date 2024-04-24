@@ -1,5 +1,6 @@
 from flask import request
 from flask_restx import Namespace, Resource, reqparse, fields
+from core.predictor import PREDICTOR
 
 # Define namespace
 API = Namespace('Feature Settings',
@@ -86,6 +87,7 @@ class SetTrackingFeature(Resource):
         enabled = args['enabled']
 
         # TODO: Handle feature enabling logic
+        PREDICTOR.tracking = enabled
         return {'message': f'Tracking visualization feature is set to {enabled}'}, 200
 
 

@@ -10,25 +10,29 @@ class Predictor():
         self.iou = 0.7
         self.class_filter = None
         self.agnostic_nms = False
+        self.tracking = False
         self.fps_moving_avg = utils.MovingAverage(10)
         self.pre_moving_avg = utils.MovingAverage(10)
         self.inf_moving_avg = utils.MovingAverage(10)
         self.post_moving_avg = utils.MovingAverage(10)
 
     def predict(self, frame):
-        results = self.model.predict(frame,
-                                     conf=self.conf,
-                                     iou=self.iou,
-                                     classes=self.class_filter,
-                                     agnostic_nms=self.agnostic_nms,
-                                     verbose=False)
+        prediction_method = self.model.track if self.tracking else self.model.predict
+        results = (prediction_method)(frame,
+                                      conf=self.conf,
+                                      iou=self.iou,
+                                      classes=self.class_filter,
+                                      agnostic_nms=self.agnostic_nms,
+                                      verbose=False)
 
         if self.socketio:
             self.socketio.emit('metrics', self.calculate_metrics(results))
             self.socketio.emit('predictions', self.get_top_k_results(results))
 
-        annotated_frame = results[0].plot()
-        return annotated_frame
+        return self.handle_visualization(results)
+
+    def handle_visualization(self, results):
+        return results[0].plot()
 
     def calculate_metrics(self, results):
         # Calculate FPS
@@ -65,20 +69,8 @@ class Predictor():
 
         return class_conf_dict
 
-    def set_confidence_filter(self, confidence):
-        self.conf = confidence
-
-    def set_iou_filter(self, iou):
-        self.iou = iou
-
     def set_model_size(self, size):
         self.model = YOLO(f'yolov8{size}.pt')
-
-    def set_class_filter(self, class_filter):
-        self.class_filter = class_filter
-
-    def set_agnsotic_mode(self, agnostic):
-        self.agnostic_nms = agnostic
 
     def set_socketio(self, socketio):
         self.socketio = socketio
