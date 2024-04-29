@@ -1,5 +1,5 @@
 from flask import request
-from flask_restx import Namespace, Resource, reqparse, fields
+from flask_restx import Namespace, Resource, reqparse, fields, inputs
 import core.utils as utils
 from core.streamer import STREAMER
 from core.predictor import PREDICTOR
@@ -137,7 +137,7 @@ class SetClassFilter(Resource):
 set_agnostic_nms_parser = reqparse.RequestParser()
 set_agnostic_nms_parser.add_argument(
     'agnostic_nms',
-    type=bool,
+    type=inputs.boolean,
     required=True,
     help='The Agnostic NMS mode to alter bias of the NMS calculation')
 
@@ -151,4 +151,5 @@ class SetAgnosticNMS(Resource):
         agnostic_nms = args['agnostic_nms']
 
         PREDICTOR.agnostic_nms = agnostic_nms
+
         return {'message': f'IOU filter set to {agnostic_nms}'}, 200

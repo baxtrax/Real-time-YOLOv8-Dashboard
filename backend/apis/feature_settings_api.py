@@ -1,5 +1,5 @@
 from flask import request
-from flask_restx import Namespace, Resource, reqparse, fields
+from flask_restx import Namespace, Resource, reqparse, fields, inputs
 from core.predictor import PREDICTOR
 
 # Define namespace
@@ -13,7 +13,7 @@ API = Namespace('Feature Settings',
 set_confidence_feature_parser = reqparse.RequestParser()
 set_confidence_feature_parser.add_argument(
     'enabled',
-    type=bool,
+    type=inputs.boolean,
     required=True,
     help='Whether Confidence Hinting feature is enabled')
 
@@ -33,7 +33,7 @@ class SetConfidenceFeature(Resource):
 set_feature_heads_feature_parser = reqparse.RequestParser()
 set_feature_heads_feature_parser.add_argument(
     'enabled',
-    type=bool,
+    type=inputs.boolean,
     required=True,
     help='Whether visualization of Feature Heads feature is enabled')
 
@@ -53,7 +53,7 @@ class SetFeatureHeadsFeature(Resource):
 set_heatmap_feature_parser = reqparse.RequestParser()
 set_heatmap_feature_parser.add_argument(
     'enabled',
-    type=bool,
+    type=inputs.boolean,
     required=True,
     help='Whether visualization of heatmaps feature is enabled')
 
@@ -73,7 +73,7 @@ class SetHeatmapFeature(Resource):
 set_tracking_feature_parser = reqparse.RequestParser()
 set_tracking_feature_parser.add_argument(
     'enabled',
-    type=bool,
+    type=inputs.boolean,
     required=True,
     help='Whether visualization of track paths feature is enabled')
 
@@ -86,15 +86,14 @@ class SetTrackingFeature(Resource):
         args = set_tracking_feature_parser.parse_args()
         enabled = args['enabled']
 
-        # TODO: Handle feature enabling logic
-        PREDICTOR.tracking = enabled
+        PREDICTOR.set_tracking(enabled)
         return {'message': f'Tracking visualization feature is set to {enabled}'}, 200
 
 
 set_pose_feature_parser = reqparse.RequestParser()
 set_pose_feature_parser.add_argument(
     'enabled',
-    type=bool,
+    type=inputs.boolean,
     required=True,
     help='Whether visualization of poses feature is enabled')
 
@@ -114,7 +113,7 @@ class SetPoseFeature(Resource):
 set_segmentation_feature_parser = reqparse.RequestParser()
 set_segmentation_feature_parser.add_argument(
     'enabled',
-    type=bool,
+    type=inputs.boolean,
     required=True,
     help='Whether visualization of segmentation maps feature is enabled')
 

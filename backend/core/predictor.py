@@ -1,6 +1,8 @@
 from ultralytics import YOLO
+from collections import defaultdict
 import core.utils as utils
 import numpy as np
+import cv2
 
 
 class Predictor():
@@ -10,14 +12,21 @@ class Predictor():
         self.iou = 0.7
         self.class_filter = None
         self.agnostic_nms = False
-        self.tracking = False
+        self.method = 'tracking'
+        self.tracking_hist = defaultdict(lambda: [])
         self.fps_moving_avg = utils.MovingAverage(10)
         self.pre_moving_avg = utils.MovingAverage(10)
         self.inf_moving_avg = utils.MovingAverage(10)
         self.post_moving_avg = utils.MovingAverage(10)
 
     def predict(self, frame):
-        prediction_method = self.model.track if self.tracking else self.model.predict
+        match self.method:
+            case 'tracking':
+                prediction_method = self.model.track
+            case _:
+                prediction_method = self.model.predict
+
+        # Map the prediction method to the correct
         results = (prediction_method)(frame,
                                       conf=self.conf,
                                       iou=self.iou,
@@ -32,7 +41,31 @@ class Predictor():
         return self.handle_visualization(results)
 
     def handle_visualization(self, results):
-        return results[0].plot()
+        if self.tracking and results[0].boxes.id is not None:
+            # Grab the boxes and track ids
+            boxes = results[0].boxes.xywh.cpu()
+            track_ids = results[0].boxes.id.int().cpu().tolist()
+
+            # Plot bboxes like normal
+            annotated_frame = results[0].plot()
+
+            # Plot tracking lines
+            for box, track_id in zip(boxes, track_ids):
+                x, y, w, h = box
+                track = self.tracking_hist[track_id]  # Get hist for id
+                track.append((float(x), float(y)))  # Update history
+                if len(track) > 30:  # Length of track
+                    track.pop(0)
+
+                # Draw the tracking lines
+                points = np.hstack(track).astype(
+                    np.int32).reshape((-1, 1, 2))
+                cv2.polylines(annotated_frame, [points], isClosed=False, color=(
+                    241, 102, 99), thickness=5)
+
+            return annotated_frame
+        else:
+            return results[0].plot()
 
     def calculate_metrics(self, results):
         # Calculate FPS
@@ -74,6 +107,14 @@ class Predictor():
 
     def set_socketio(self, socketio):
         self.socketio = socketio
+
+    def set_tracking(self, enabled):
+        if enabled:
+            self.method = 'tracking'
+        else:
+            self.method = ''  # Default bbox
+        # Force reset to fix tracking bug
+        self.model = YOLO(self.model.ckpt_path)
 
 
 PREDICTOR = Predictor()
