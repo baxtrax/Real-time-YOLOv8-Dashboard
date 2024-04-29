@@ -106,7 +106,7 @@ class SetPoseFeature(Resource):
         args = set_pose_feature_parser.parse_args()
         enabled = args['enabled']
 
-        # TODO: Handle feature enabling logic
+        PREDICTOR.set_pose(enabled)
         return {'message': f'Poses visualization feature is set to {enabled}'}, 200
 
 
@@ -126,5 +126,5 @@ class SetSegmentationFeature(Resource):
         args = set_segmentation_feature_parser.parse_args()
         enabled = args['enabled']
 
-        # TODO: Handle feature enabling logic
+        PREDICTOR.set_seg(enabled)
         return {'message': f'Segmentation maps visualization feature is set to {enabled}'}, 200

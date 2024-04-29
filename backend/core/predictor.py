@@ -7,12 +7,13 @@ import cv2
 
 class Predictor():
     def __init__(self) -> None:
-        self.model = YOLO('yolov8n.pt')
+        self.size = 'n'
+        self.model = YOLO(f'yolov8{self.size}.pt')
         self.conf = 0.25
         self.iou = 0.7
         self.class_filter = None
         self.agnostic_nms = False
-        self.method = 'tracking'
+        self.method = ''
         self.tracking_hist = defaultdict(lambda: [])
         self.fps_moving_avg = utils.MovingAverage(10)
         self.pre_moving_avg = utils.MovingAverage(10)
@@ -41,7 +42,7 @@ class Predictor():
         return self.handle_visualization(results)
 
     def handle_visualization(self, results):
-        if self.tracking and results[0].boxes.id is not None:
+        if self.method == 'tracking' and results[0].boxes.id is not None:
             # Grab the boxes and track ids
             boxes = results[0].boxes.xywh.cpu()
             track_ids = results[0].boxes.id.int().cpu().tolist()
@@ -103,6 +104,7 @@ class Predictor():
         return class_conf_dict
 
     def set_model_size(self, size):
+        self.size = size
         self.model = YOLO(f'yolov8{size}.pt')
 
     def set_socketio(self, socketio):
@@ -115,6 +117,18 @@ class Predictor():
             self.method = ''  # Default bbox
         # Force reset to fix tracking bug
         self.model = YOLO(self.model.ckpt_path)
+
+    def set_pose(self, enabled):
+        if enabled:
+            self.model = YOLO(f'yolov8{self.size}-pose.pt')
+        else:
+            self.model = YOLO(f'yolov8{self.size}.pt')
+
+    def set_seg(self, enabled):
+        if enabled:
+            self.model = YOLO(f'yolov8{self.size}-seg.pt')
+        else:
+            self.model = YOLO(f'yolov8{self.size}.pt')
 
 
 PREDICTOR = Predictor()
