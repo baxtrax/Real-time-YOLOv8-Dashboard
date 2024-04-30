@@ -60,21 +60,21 @@ const FeatureSettingsPanel = ({}) => {
                 useFlexGap
             >
                 <Stack spacing={2} flexGrow={1} flexShrink={1}>
-                    <SwitchInput
+                    {/* <SwitchInput
                         labelText="Confidence Hinting"
                         onChange={handleConfidenceHinting}
                     />
                     <SwitchInput
                         labelText="Visualize Feature Heads"
                         onChange={handleFeatureHeads}
-                    />
-                    <SwitchInput labelText="Heatmap" onChange={handleHeatmap} />
-                </Stack>
-                <Stack spacing={2} flexGrow={1} flexShrink={1}>
+                    /> */}
                     <SwitchInput
                         labelText="Tracking"
                         onChange={handleTracking}
                     />
+                    <SwitchInput labelText="Heatmap" onChange={handleHeatmap} />
+                </Stack>
+                <Stack spacing={2} flexGrow={1} flexShrink={1}>
                     <SwitchInput
                         labelText="Pose Estimation"
                         onChange={handlePose}

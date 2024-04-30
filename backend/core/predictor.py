@@ -1,4 +1,5 @@
 from ultralytics import YOLO
+from core.heatmap import PatchedHeatmap
 from collections import defaultdict
 import core.utils as utils
 import numpy as np
@@ -15,6 +16,14 @@ class Predictor():
         self.agnostic_nms = False
         self.method = ''
         self.tracking_hist = defaultdict(lambda: [])
+        self.heatmap = None
+        self.heatmap_args = dict(colormap=cv2.COLORMAP_JET,
+                                 view_img=False,
+                                 shape="circle",
+                                 classes_names=self.model.names,
+                                 imw=640,
+                                 imh=480,
+                                 decay_factor=0.99,)
         self.fps_moving_avg = utils.MovingAverage(10)
         self.pre_moving_avg = utils.MovingAverage(10)
         self.inf_moving_avg = utils.MovingAverage(10)
@@ -22,7 +31,7 @@ class Predictor():
 
     def predict(self, frame):
         match self.method:
-            case 'tracking':
+            case 'tracking' | 'heatmap':
                 prediction_method = self.model.track
             case _:
                 prediction_method = self.model.predict
@@ -65,6 +74,11 @@ class Predictor():
                     241, 102, 99), thickness=5)
 
             return annotated_frame
+
+        elif self.method == 'heatmap':
+            new_img = self.heatmap.generate_heatmap(
+                results[0].orig_img, results[0])
+            return new_img
         else:
             return results[0].plot()
 
@@ -129,6 +143,24 @@ class Predictor():
             self.model = YOLO(f'yolov8{self.size}-seg.pt')
         else:
             self.model = YOLO(f'yolov8{self.size}.pt')
+
+    def set_heatmap(self, enabled):
+        if enabled:
+            self.method = 'heatmap'
+            self.heatmap = PatchedHeatmap()
+            self.heatmap.set_args(**self.heatmap_args)
+        else:
+            self.method = ''
+            self.heatmap = None
+
+    def update_heatmap_args(self, args):
+        if self.heatmap:
+            # Update heatmap_args with updated args if present
+            for key, value in args.items():
+                if key in self.heatmap_args:
+                    self.heatmap_args[key] = value
+
+            self.heatmap.update_args(**self.heatmap_args)
 
 
 PREDICTOR = Predictor()

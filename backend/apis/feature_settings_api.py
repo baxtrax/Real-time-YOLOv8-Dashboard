@@ -67,6 +67,7 @@ class SetHeatmapFeature(Resource):
         enabled = args['enabled']
 
         # TODO: Handle feature enabling logic
+        PREDICTOR.set_heatmap(enabled)
         return {'message': f'Heatmap visualization feature is set to {enabled}'}, 200
 
 
