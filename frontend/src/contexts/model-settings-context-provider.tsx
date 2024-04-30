@@ -157,7 +157,10 @@ const ModelSettingsContextProvider: React.FC<ProviderProps> = ({
     // Update functions
 
     const updateModelSize = async (newValue: MODEL_SIZE) => {
-        const convertedValue = newValue[0].toLowerCase(); // Only need first character
+        var convertedValue = newValue[0].toLowerCase(); // Only need first character
+
+        // Convert "e" to "x" for Extra Large (only for consistency with the backend)
+        convertedValue = convertedValue === "e" ? "x" : convertedValue;
 
         console.log("Sending new Model Size: ", convertedValue);
 
