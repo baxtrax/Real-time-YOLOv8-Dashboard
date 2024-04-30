@@ -17,6 +17,7 @@ import { SocketContextProvider } from "@/contexts/socket-context-provider";
 import { InformationContextProvider } from "@/contexts/information-panel-context";
 import { PredictionsContextProvider } from "@/contexts/predictions-context-provider";
 import { FeatureSettingsContextProvider } from "@/contexts/feature-settings-provider";
+import { FeatureSpecificSettingsContextProvider } from "@/contexts/feature-specific-settings-provider";
 
 /**
  * Overall structure of the home page. Is combosed of multiple panels. Using
@@ -48,7 +49,9 @@ const Home = ({}) => {
                 flexWrap="wrap"
                 useFlexGap
             >
-                <FeatureSpecificSettingsPanel />
+                <FeatureSpecificSettingsContextProvider>
+                    <FeatureSpecificSettingsPanel />
+                </FeatureSpecificSettingsContextProvider>
                 <ModelSettingsContextProvider>
                     <ModelSettingsPanel />
                 </ModelSettingsContextProvider>

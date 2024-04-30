@@ -15,6 +15,9 @@ class Predictor():
         self.class_filter = None
         self.agnostic_nms = False
         self.method = ''
+        self.tracking_method = 'botsort.yaml'
+        self.tracking_args = dict(tail_length=30,
+                                  tail_thickness=5,)
         self.tracking_hist = defaultdict(lambda: [])
         self.heatmap = None
         self.heatmap_args = dict(colormap=cv2.COLORMAP_JET,
@@ -23,6 +26,7 @@ class Predictor():
                                  classes_names=self.model.names,
                                  imw=640,
                                  imh=480,
+                                 heatmap_alpha=0.5,
                                  decay_factor=0.99,)
         self.fps_moving_avg = utils.MovingAverage(10)
         self.pre_moving_avg = utils.MovingAverage(10)
@@ -32,17 +36,20 @@ class Predictor():
     def predict(self, frame):
         match self.method:
             case 'tracking' | 'heatmap':
-                prediction_method = self.model.track
+                results = self.model.track(frame,
+                                           conf=self.conf,
+                                           iou=self.iou,
+                                           classes=self.class_filter,
+                                           agnostic_nms=self.agnostic_nms,
+                                           verbose=False,
+                                           tracker=self.tracking_method)
             case _:
-                prediction_method = self.model.predict
-
-        # Map the prediction method to the correct
-        results = (prediction_method)(frame,
-                                      conf=self.conf,
-                                      iou=self.iou,
-                                      classes=self.class_filter,
-                                      agnostic_nms=self.agnostic_nms,
-                                      verbose=False)
+                results = self.model.predict(frame,
+                                             conf=self.conf,
+                                             iou=self.iou,
+                                             classes=self.class_filter,
+                                             agnostic_nms=self.agnostic_nms,
+                                             verbose=False)
 
         if self.socketio:
             self.socketio.emit('metrics', self.calculate_metrics(results))
@@ -64,23 +71,27 @@ class Predictor():
                 x, y, w, h = box
                 track = self.tracking_hist[track_id]  # Get hist for id
                 track.append((float(x), float(y)))  # Update history
-                if len(track) > 30:  # Length of track
+
+                # Length of track
+                if len(track) > self.tracking_args['tail_length']:
                     track.pop(0)
 
                 # Draw the tracking lines
                 points = np.hstack(track).astype(
                     np.int32).reshape((-1, 1, 2))
                 cv2.polylines(annotated_frame, [points], isClosed=False, color=(
-                    241, 102, 99), thickness=5)
+                    241, 102, 99), thickness=self.tracking_args['tail_thickness'])
 
             return annotated_frame
 
-        elif self.method == 'heatmap':
+        elif self.method == 'heatmap' and results[0].boxes.id is not None:
             new_img = self.heatmap.generate_heatmap(
                 results[0].orig_img, results[0])
             return new_img
-        else:
+        elif self.method == '':
             return results[0].plot()
+        else:
+            return results[0].orig_img
 
     def calculate_metrics(self, results):
         # Calculate FPS
@@ -153,14 +164,22 @@ class Predictor():
             self.method = ''
             self.heatmap = None
 
-    def update_heatmap_args(self, args):
+    def update_heatmap_args(self, **kwargs):
         if self.heatmap:
             # Update heatmap_args with updated args if present
-            for key, value in args.items():
+            for key, value in kwargs.items():
                 if key in self.heatmap_args:
                     self.heatmap_args[key] = value
 
-            self.heatmap.update_args(**self.heatmap_args)
+            self.heatmap.set_args(**self.heatmap_args)
+
+    def set_tracking_method(self, method):
+        self.tracking_method = f'{method}.yaml'
+
+    def update_tracking_args(self, **kwargs):
+        for key, value in kwargs.items():
+            if key in self.tracking_args:
+                self.tracking_args[key] = value
 
 
 PREDICTOR = Predictor()

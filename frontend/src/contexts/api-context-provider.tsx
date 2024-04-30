@@ -20,6 +20,7 @@ type ContextType = {
     STREAM_CONTROL_ENDPOINT: string;
     HEARTBEAT_ENDPOINT: string;
     FEATURE_SETTINGS_ENDPOINT: string;
+    FEATURE_SPECIFIC_SETTINGS_ENDPOINT: string;
 };
 
 const BACKEND_ADDRESS = "http://localhost:5001/";
@@ -39,6 +40,8 @@ const ApiContextProvider: React.FC<ProviderProps> = ({ children }) => {
     const STREAM_CONTROL_ENDPOINT = BACKEND_ADDRESS + "stream-control/";
     const HEARTBEAT_ENDPOINT = BACKEND_ADDRESS + "heartbeat/";
     const FEATURE_SETTINGS_ENDPOINT = BACKEND_ADDRESS + "feature-settings/";
+    const FEATURE_SPECIFIC_SETTINGS_ENDPOINT =
+        BACKEND_ADDRESS + "feature-specific-settings/";
 
     // Passable context values
     const contextValues = {
@@ -46,6 +49,7 @@ const ApiContextProvider: React.FC<ProviderProps> = ({ children }) => {
         STREAM_CONTROL_ENDPOINT,
         HEARTBEAT_ENDPOINT,
         FEATURE_SETTINGS_ENDPOINT,
+        FEATURE_SPECIFIC_SETTINGS_ENDPOINT,
     };
 
     const checkHeartbeat = async () => {
