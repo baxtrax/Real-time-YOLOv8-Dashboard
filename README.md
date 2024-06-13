@@ -7,7 +7,7 @@
 [![React][React-badge]][React-url]
 [![Nextjs][Nextjs-badge]][Nextjs-url]
 
-A Realtime YOLOv8 Dashboard, was done as a small senior project to dive more into React using Next.js and real-time communication protocols. Allows the use of YOLOv8 (and technically later models like YOLOv9) lightweight object detection models in real-time including real-time Segmentation, Pose-Estimation, Heatmaps, and other configurable settings in real-time as during detection. Program was built to be as efficient as possible and as fast as possible, achieving inference and display speeds near what were benchmarked by the [YOLOv8 creators](https://www.ultralytics.com/), while showing off more features and a dynamic, responsive UI.
+A real-time YOLOv8 dashboard, was done as a small senior project to dive more into React using Next.js and real-time communication protocols. Allows the use of YOLOv8 (and technically later models like YOLOv9) lightweight object detection models in real-time including real-time Segmentation, Pose-Estimation, Heatmaps, and other configurable settings in real-time as during detection. Program was built to be as efficient as possible and as fast as possible, achieving inference and display speeds near what were benchmarked by the [YOLOv8 creators](https://www.ultralytics.com/), while showing off more features and a dynamic, responsive UI.
 
 Since this was done as a project, there are also project documents available, such as requirements, test deliverables, and design documents about the entirety of the program.
 
