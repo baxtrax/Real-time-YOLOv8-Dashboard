@@ -9,6 +9,11 @@ A Realtime YOLOv8 Dashboard, was done as a small senior project to dive more int
 
 Since this was done as a project, there are also project documents available, such as requirements, test deliverables, and design documents about the entirety of the program.
 
+[Software Design Document (SDD)](docs/Requirements.pdf)
+
+[Requirements Document](docs/Software_Design_Document.pdf)
+
+
 <!-- TABLE OF CONTENTS -->
 <details>
   <summary>Table of Contents</summary>
