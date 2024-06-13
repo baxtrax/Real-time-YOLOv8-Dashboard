@@ -1,5 +1,7 @@
 # Realtime YOLOv8 Dashboard
 
+
+
 [![Python][Python-badge]][Python-url]
 [![Pytorch][Pytorch-badge]][Pytorch-url]
 [![React][React-badge]][React-url]
@@ -13,7 +15,8 @@ Since this was done as a project, there are also project documents available, su
 
 [Requirements Document](docs/Software_Design_Document.pdf)
 
-
+![image](docs/demo.gif)
+> Framerate of gif is locked at 7 FPS. Actual app performance is much faster (watch the Information panel on the demo for actual speeds up to 120 fps!)
 <!-- TABLE OF CONTENTS -->
 <details>
   <summary>Table of Contents</summary>
