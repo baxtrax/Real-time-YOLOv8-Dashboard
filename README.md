@@ -1,4 +1,4 @@
-# Realtime YOLOv8 Dashboard
+# Real-time YOLOv8 Dashboard
 
 
 
